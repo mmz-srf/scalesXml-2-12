@@ -1,7 +1,6 @@
 name := "scalesXml-2-12"
 organization := "ch.srf"
 
-publishTo := Some("mmz-repository" at "http://maven.admin.srf.ch")
 
 // https://mvnrepository.com/artifact/org.scala-lang.modules/scala-xml
 libraryDependencies ++= Seq(
