@@ -1,9 +1,9 @@
 package scales.utils.collection.path
 
-import scala.collection.IndexedSeqLike
-
 import scales.utils.collection.Tree
-import scales.utils.{PathFoldR, FoldR, LeftLike, deepestLast}
+import scales.utils.{LeftLike, deepestLast}
+
+import scala.collection.IndexedSeqLike
 
 /**
  * Provides an Iterator from a given initial path that traverses the entire tree, allows both forwards and backwards iteration.

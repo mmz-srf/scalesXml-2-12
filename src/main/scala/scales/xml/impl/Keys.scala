@@ -1,6 +1,6 @@
 package scales.xml.impl
 
-import scales.xml.{QName, Attributes, emptyAttributes, emptyNamespaces}
+import scales.xml.{Attributes, QName, emptyAttributes, emptyNamespaces}
 
 object DefaultHashes {
   
@@ -9,7 +9,7 @@ object DefaultHashes {
 
 }
 
-import DefaultHashes._
+import scales.xml.impl.DefaultHashes._
 
 /**
  * Allows quick lookups without creating elements, only use via copy and then don't change it

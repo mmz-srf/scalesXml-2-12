@@ -13,7 +13,7 @@ package object xml extends dsl.XPathMatcher
   with xpath.XmlPaths
   with xpath.Functions {
 
-  import scales.xml.parser.strategies.{QNameMemoryOptimisation, PathOptimisationStrategy, QNameToken, MemoryOptimisationStrategy}
+  import scales.xml.parser.strategies.{MemoryOptimisationStrategy, PathOptimisationStrategy, QNameMemoryOptimisation, QNameToken}
 
   val defaultPathOptimisation : PathOptimisationStrategy[QNameToken] = QNameMemoryOptimisation
   val defaultOptimisation : MemoryOptimisationStrategy[QNameToken] = QNameMemoryOptimisation

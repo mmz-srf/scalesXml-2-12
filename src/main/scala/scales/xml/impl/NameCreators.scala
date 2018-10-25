@@ -1,8 +1,7 @@
 package scales.xml.impl
 
-import scales.xml.{QName, AttributeQName, UnprefixedQName, Namespace, NoNamespaceQName, XmlVersion}
-
 import scales.xml.parser.strategies.{MemoryOptimisationStrategy, OptimisationToken}
+import scales.xml.{AttributeQName, Namespace, NoNamespaceQName, QName, UnprefixedQName, XmlVersion}
 
 /**
  * Given an optimisation strategy create QNames for elements and attributes.

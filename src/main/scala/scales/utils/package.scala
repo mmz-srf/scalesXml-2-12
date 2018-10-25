@@ -19,10 +19,9 @@ package object utils extends collection.IterableUtils
 
 // https://issues.scala-lang.org/browse/SI-4767 forces them to be here if we want them inlining
 
-  import scala.collection.IndexedSeqLike
-  import scala.collection.generic.CanBuildFrom
-  
   import collection.Tree
+
+  import scala.collection.IndexedSeqLike
 
   @inline final def item[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](item: Item): ItemOrTree[Item, Section, CC] = item
 

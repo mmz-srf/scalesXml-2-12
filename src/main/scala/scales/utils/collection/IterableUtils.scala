@@ -36,6 +36,7 @@ trait IterableUtils {
 
 }
 
+import scalaz.EphemeralStream
 import scales.utils._
 
 /**
@@ -59,7 +60,6 @@ class CapturedIterator[A](orig : Iterator[A]) extends Iterator[A] {
   }
 }
 
-import scalaz._
 
 trait IterableUtilsImplicits extends FlatMapImplicits {
 

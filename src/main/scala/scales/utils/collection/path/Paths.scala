@@ -1,11 +1,11 @@
 package scales.utils.collection.path
 
-import scala.collection.immutable.Stack
+import scales.utils.collection.Tree
+import scales.utils.{EitherLike, ItemOrTree, LeftLike, RightLike, collection, subtree}
+
 import scala.collection.IndexedSeqLike
 import scala.collection.generic.CanBuildFrom
-import scales.utils.{EitherLike, ItemOrTree, LeftLike, RightLike, collection, subtree}
-import collection.Tree
-
+import scala.collection.immutable.Stack
 import scala.sys.error
 
 /**

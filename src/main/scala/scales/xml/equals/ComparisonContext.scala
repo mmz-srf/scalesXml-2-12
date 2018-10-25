@@ -1,11 +1,10 @@
 package scales.xml.equals
 
-import scales.xml.{PullType, QName, Elem, Attribs, Attributes, Attribute, XmlItem, XmlPath, EndElem, XCC, Misc, Miscs}
+import scales.xml.equals.BasicPaths._
 import scales.xml.serializers.NamespaceContext
+import scales.xml.{Elem, PullType}
 
-import scala.collection.immutable.{ Stack, Map }
-
-import BasicPaths._
+import scala.collection.immutable.Map
 
 /**
  * ComparisonContext represents both the path to a given comparison and the namespace declarations which are relevant for it.

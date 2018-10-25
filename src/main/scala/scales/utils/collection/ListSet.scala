@@ -1,11 +1,9 @@
 package scales.utils.collection
 
-import annotation.tailrec
-
+import scalaz.Equal
 import scales.utils.Equiv
 
-import scalaz._
-import Scalaz._
+import scala.annotation.tailrec
 
 //TODO also integrate the non quadratic add/apply from PaulPs fixes, tough as we can't use hashCode or == directly we can't re-use hashset....
 

@@ -1,6 +1,7 @@
 package scales.xml.impl
 
-import scales.xml.{XmlVersion, Xml10, EmptyNamespace, Namespace}
+import scales.xml.{EmptyNamespace, Namespace, Xml10, XmlVersion}
+
 import scala.sys.error
 
 
