@@ -1,6 +1,6 @@
 package scales.utils
 
-import scalaz6.Equal
+import scalaz.Equal
 
 /**
  * Provides evidence that two instances of two disctinct types are equivalent after a conversion.

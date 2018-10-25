@@ -15,7 +15,7 @@ trait AttributesImpl extends ArraySetsFactory[Attribute]{
   /**
    * @returns the equality Equal type class instance used
    */ 
-  def equal: scalaz6.Equal[A] = EqualsHelpers.aqnameEqual
+  def equal: scalaz.Equal[A] = EqualsHelpers.aqnameEqual
 
   implicit def arrayManifest: ClassManifest[A] = AttributeSetImplHelper.arrM
 

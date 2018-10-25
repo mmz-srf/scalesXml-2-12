@@ -184,8 +184,11 @@ trait Paths {
   }
 
 
-  import scalaz6.Equal
-  import scalaz6.Scalaz.equal
+  import scalaz.Equal
+
+  def equal[A](f: (A, A) => Boolean): Equal[A] = new Equal[A] {
+    def equal(a1: A, a2: A) = f(a1, a2)
+  }
 
   /**
    * Provides an instance of the Equal type class for positional Equality

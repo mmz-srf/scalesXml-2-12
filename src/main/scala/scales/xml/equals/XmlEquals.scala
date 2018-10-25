@@ -6,7 +6,7 @@ import scales.xml.serializers.NamespaceContext
 
 import scala.collection.immutable.{ Stack, Map }
 
-import scalaz6._
+import scalaz._
 import Scalaz._
 
 object BasicPaths {

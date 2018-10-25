@@ -1,6 +1,6 @@
 package scales.utils.collection
 
-import scalaz6._
+import scalaz._
 import Scalaz._
 
 /**

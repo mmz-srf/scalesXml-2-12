@@ -4,7 +4,7 @@ import annotation.tailrec
 
 import scales.utils.Equiv
 
-import scalaz6._
+import scalaz._
 import Scalaz._
 
 //TODO also integrate the non quadratic add/apply from PaulPs fixes, tough as we can't use hashCode or == directly we can't re-use hashset....
@@ -87,7 +87,6 @@ class ListSet[A : Equal](val plusFast : Boolean = false) extends Iterable[A]{ se
 
   /** Creates a new iterator over all elements contained in this set.
    *
-   *  @throws Predef.NoSuchElementException
    *  @return the new iterator
    */
   def iterator: Iterator[A] = new Iterator[A] {
@@ -99,12 +98,10 @@ class ListSet[A : Equal](val plusFast : Boolean = false) extends Iterable[A]{ se
   }
 
   /**
-   *  @throws Predef.NoSuchElementException
    */
   protected def elem: A = throw new NoSuchElementException("Set has no elements");
 
   /**
-   *  @throws Predef.NoSuchElementException
    */
   protected def next: ListSet[A] = throw new NoSuchElementException("Next of an empty set");
 

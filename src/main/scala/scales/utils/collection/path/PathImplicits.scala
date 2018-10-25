@@ -7,7 +7,7 @@ import scala.collection.generic.CanBuildFrom
 import scales.utils.collection.Tree
 import scales.utils.{PathFoldR, FoldR, LeftLike, deepestLast}
 
-import scalaz6._
+import scalaz._
 import Scalaz._
 
 /**

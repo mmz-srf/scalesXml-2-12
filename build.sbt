@@ -7,13 +7,17 @@ publishTo := Some("mmz-repository" at "http://maven.admin.srf.ch")
 libraryDependencies ++= Seq(
   "commons-codec" % "commons-codec" % "1.4",
   "org.slf4j" % "slf4j-api" % "1.6.1",
-  "org.scala-lang.modules" %% "scala-xml" % "1.1.1"
+  SrfPlugin.Deps.Compile.scalazCore,
+  SrfPlugin.Deps.Compile.scalaXml
   //,
   //"commons-jxpath" % "commons-jxpath" % "1.3"
 )
 
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin, SrfPlugin)
+
+scalaVersion in ThisBuild := "2.12.3"
+crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.3")
 
 scalacOptions --= Seq(
   // See other posts in the series for other helpful options

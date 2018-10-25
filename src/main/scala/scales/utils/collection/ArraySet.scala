@@ -4,7 +4,7 @@ import annotation.tailrec
 
 import scales.utils.Equiv
 
-import scalaz6._
+import scalaz._
 import Scalaz._
 
 import scales.utils.collection.array._

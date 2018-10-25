@@ -4,7 +4,7 @@ import scala.collection.immutable.Map
 
 import scala.collection.generic.CanBuildFrom
 
-import scalaz6._
+import scalaz._
 import Scalaz._
 
 import scales.utils.{EitherLike, LeftLike}

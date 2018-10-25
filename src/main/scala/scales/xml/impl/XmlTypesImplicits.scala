@@ -11,7 +11,7 @@ import scales.utils.collection.path.{ Path, Position, Node }
 
 import scales.xml.{NoNamespaceQName, PrefixedQName, AttributeQName, Attribute, XmlTree, Doc, XmlVersion, XmlCBF, XmlPath, Elem, XCC, XmlItem, QName}
 
-import scalaz6._
+import scalaz._
 import Scalaz._
 
 import java.nio.charset.Charset
