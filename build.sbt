@@ -1,7 +1,7 @@
 name := "scalesXml-2-12"
 organization := "ch.srf"
 
-publishTo := Some("mmz-repository" at "http://maven.admin.srf.ch")
+
 
 // https://mvnrepository.com/artifact/org.scala-lang.modules/scala-xml
 libraryDependencies ++= Seq(
@@ -11,6 +11,9 @@ libraryDependencies ++= Seq(
   //,
   //"commons-jxpath" % "commons-jxpath" % "1.3"
 )
+
+lazy val root = (project in file("."))
+  .enablePlugins(BuildInfoPlugin, SrfPlugin)
 
 scalacOptions --= Seq(
   // See other posts in the series for other helpful options
