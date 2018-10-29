@@ -66,16 +66,5 @@ object ScalesXmlTest extends Specification {
       files.fold(e => ko(e), list => list must haveLength(6))
     }
   }
-
-  private def assertAttributeValue(value1: AttributePaths[List[XmlPath]], expected: String) = {
-    value1.one.map(AttributePathText.text(_)).headOption should beSome { (txt: String) =>
-      txt should_=== (expected)
-    }
-  }
-
-  private def assertValue(value: XPath[List[XmlPath]], expected: String) = {
-    value.one.map(XmlPathText.text(_)).headOption should beSome { (txt: String) =>
-      txt should_=== (expected)
-    }
-  }
+  
 }
