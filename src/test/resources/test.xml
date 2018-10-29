@@ -1,26 +1,112 @@
-<article>
-    <title>foo</title>
-    <para>bar</para>
-    <table>
-        <title>Some CALS Table</title>
-        <tgroup cols="3">
-            <tbody>
-                <row>
-                    <entry>one</entry>
-                    <entry>two</entry>
-                    <entry>three</entry>
-                </row>
-            </tbody>
-        </tgroup>
-    </table>
-    <table>
-        <caption>Some HTML Table</caption>
-        <tbody>
-            <tr>
-                <td>one</td>
-                <td>two</td>
-                <td>three</td>
-            </tr>
-        </tbody>
-    </table>
-</article>
+<?xml version="1.0" encoding="UTF-8"?>
+<VideoEvent>
+    <jobId>129580</jobId>
+    <VideoFiles>
+        <FilesystemVideoOnDemandFile>
+            <filename>/vod/puls/2016/04/puls_20160418_210755_v_webcast_h264_q10.mp4</filename>
+            <duration>2116000</duration>
+            <videoCodec>h264</videoCodec>
+            <videoBitrate>104000</videoBitrate>
+            <audioCodec>aac-he</audioCodec>
+            <audioBitrate>32000</audioBitrate>
+            <fps>12.5</fps>
+            <width>320</width>
+            <height>180</height>
+            <size>35801385</size>
+        </FilesystemVideoOnDemandFile>
+        <FilesystemVideoOnDemandFile>
+            <filename>/vod/puls/2016/04/puls_20160418_210755_v_webcast_h264_q20.mp4</filename>
+            <duration>2116000</duration>
+            <videoCodec>h264</videoCodec>
+            <videoBitrate>304000</videoBitrate>
+            <audioCodec>aac-he</audioCodec>
+            <audioBitrate>32000</audioBitrate>
+            <fps>12.5</fps>
+            <width>480</width>
+            <height>272</height>
+            <size>88697066</size>
+        </FilesystemVideoOnDemandFile>
+        <FilesystemVideoOnDemandFile>
+            <filename>/vod/puls/2016/04/puls_20160418_210755_v_webcast_h264_q30.mp4</filename>
+            <duration>2115960</duration>
+            <videoCodec>h264</videoCodec>
+            <videoBitrate>600000</videoBitrate>
+            <audioCodec>aac</audioCodec>
+            <audioBitrate>64000</audioBitrate>
+            <fps>25.0</fps>
+            <width>512</width>
+            <height>288</height>
+            <size>175642748</size>
+        </FilesystemVideoOnDemandFile>
+        <FilesystemVideoOnDemandFile>
+            <filename>/vod/puls/2016/04/puls_20160418_210755_v_webcast_h264_q40.mp4</filename>
+            <duration>2115960</duration>
+            <videoCodec>h264</videoCodec>
+            <videoBitrate>1200000</videoBitrate>
+            <audioCodec>aac</audioCodec>
+            <audioBitrate>128000</audioBitrate>
+            <fps>25.0</fps>
+            <width>640</width>
+            <height>360</height>
+            <size>351249426</size>
+        </FilesystemVideoOnDemandFile>
+        <FilesystemVideoOnDemandFile>
+            <filename>/vod/puls/2016/04/puls_20160418_210755_v_webcast_h264_q50.mp4</filename>
+            <duration>2115960</duration>
+            <videoCodec>h264</videoCodec>
+            <videoBitrate>2000000</videoBitrate>
+            <audioCodec>aac</audioCodec>
+            <audioBitrate>128000</audioBitrate>
+            <fps>25.0</fps>
+            <width>960</width>
+            <height>544</height>
+            <size>562807576</size>
+        </FilesystemVideoOnDemandFile>
+        <FilesystemVideoOnDemandFile>
+            <filename>/vod/puls/2016/04/puls_20160418_210755_v_webcast_h264_q60.mp4</filename>
+            <duration>2115960</duration>
+            <videoCodec>h264</videoCodec>
+            <videoBitrate>3496000</videoBitrate>
+            <audioCodec>aac</audioCodec>
+            <audioBitrate>128000</audioBitrate>
+            <fps>25.0</fps>
+            <width>1280</width>
+            <height>720</height>
+            <size>958422221</size>
+        </FilesystemVideoOnDemandFile>
+        <FilesystemVideoPodcastFile>
+            <filename>/podcast/puls/2016/04/puls_20160418_210755_v_podcast_h264_q10.mp4</filename>
+            <duration>2115960</duration>
+            <videoCodec>h264</videoCodec>
+            <videoBitrate>1200000</videoBitrate>
+            <audioCodec>aac</audioCodec>
+            <audioBitrate>128000</audioBitrate>
+            <fps>25.0</fps>
+            <width>640</width>
+            <height>360</height>
+            <size>272400991</size>
+        </FilesystemVideoPodcastFile>
+        <FilesystemVideoPodcastFile>
+            <filename>/podcast/puls/2016/04/puls_20160418_210755_v_podcast_h264_q30.mp4</filename>
+            <duration>2115960</duration>
+            <videoCodec>h264</videoCodec>
+            <videoBitrate>3480000</videoBitrate>
+            <audioCodec>aac</audioCodec>
+            <audioBitrate>128000</audioBitrate>
+            <fps>25.0</fps>
+            <width>1280</width>
+            <height>720</height>
+            <size>954190303</size>
+        </FilesystemVideoPodcastFile>
+    </VideoFiles>
+    <metas>
+        <meta value="2016-04-18T21:07:56+0200" key="broadcastTime"/>
+        <meta value="" key="description"/>
+        <meta value="puls" key="assetGroupUniqueName"/>
+        <meta value="ea15efd9-38c8-4553-aa50-26ce2701562f" key="proteusSeId"/>
+        <meta value="2016-04-18T21:07:56+0200" key="captureStartTime"/>
+        <meta value="5cbae43f-64b2-42e1-bfd2-37586199ef08" key="proteusSlotId"/>
+        <meta value="Puls vom 18.04.2016" key="title"/>
+        <meta value="23FFBE1B-65CE-4188-ADD2-C724186C2C9F" key="channelId"/>
+    </metas>
+</VideoEvent>
