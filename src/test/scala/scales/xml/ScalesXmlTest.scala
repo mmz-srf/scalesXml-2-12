@@ -1,28 +1,21 @@
 package scales.xml
 
 import org.specs2.mutable.Specification
-import scalaz.{Apply, Validation, ValidationNel}
 import scalaz.syntax.applicative._
-import scalaz.Validation.FlatMap._
-import scalaz.syntax.validation._
 import scalaz.syntax.std.option._
-import scalaz.syntax.traverse._
-import scalaz.syntax.equal._
-import scalaz.std.list._
 import scalaz.std.string._
 import scalaz._
 
 import scales.utils._
-import scales.xml.Domain.FilesystemVideoOnDemandFile
 import scales.xml.ScalesXml._
-import scales.xml.xpath.{AttributePathText, XmlPathText}
+import scales.xml.xpath.XmlPathText
 
 import scala.xml.Source
 
 
 object ScalesXmlTest extends Specification {
 
-
+  @SuppressWarnings(Array("org.wartremover.warts.ImplicitParameter"))
   private def childValidation(name: String)
                              (implicit p: XmlPath) =
     (p \* name).headOption.map(XmlPathText.text(_)).toSuccess(s"No $name set in: ${asString(p.tree)}")
@@ -66,5 +59,17 @@ object ScalesXmlTest extends Specification {
       files.fold(e => ko(e), list => list must haveLength(6))
     }
   }
-  
+
+  final case class FilesystemVideoOnDemandFile(filename: String,
+                                               duration: Int,
+                                               videoCode: String,
+                                               videoBitrate: Int,
+                                               audioCodec: String,
+                                               audioBitrate: Int,
+                                               fps: Double,
+                                               width: Int,
+                                               height: Int,
+                                               size: Long
+                                              )
+
 }
