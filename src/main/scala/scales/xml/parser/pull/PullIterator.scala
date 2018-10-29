@@ -3,18 +3,17 @@ package scales.xml.parser.pull
 import javax.xml.stream._
 import scales.utils._
 import scales.xml.impl.{FromParser, IsFromParser}
-import scales.xml.parser._
 import scales.xml.parser.strategies.{MemoryOptimisationStrategy, OptimisationToken}
 import scales.xml.{AttributeQName, Attributes, CData, Comment, DTD, Declaration, DocLike, EndElem, EndMisc, Misc, PI, Prolog, PullType, Text, Xml10, Xml11}
 
 /**
- * Basis for xmlpulls, an Iterator[PullType]
- */
+  * Basis for xmlpulls, an Iterator[PullType]
+  */
 trait XmlPull extends Iterator[PullType] with DocLike {
 
   type Token <: OptimisationToken
 
-  implicit val weAreInAParser : FromParser = IsFromParser
+  implicit val weAreInAParser: FromParser = IsFromParser
 
   protected[xml] val parser: XMLStreamReader
   protected[xml] val resourceCloser: () => Unit
@@ -22,11 +21,11 @@ trait XmlPull extends Iterator[PullType] with DocLike {
   protected[xml] def internalClose {}
 
   /**
-   * Why is this on a pull parser?  Simple answer is by default it costs little,
-   * and by selection the user can optimise whole streams at an early and central place.  Optimising the stream in onQNames or another iteratee or in user code seems to go against the definition of a good design.
-   */ 
-  protected[xml] val strategy : MemoryOptimisationStrategy[Token]
-  protected[xml] val token : Token
+    * Why is this on a pull parser?  Simple answer is by default it costs little,
+    * and by selection the user can optimise whole streams at an early and central place.  Optimising the stream in onQNames or another iteratee or in user code seems to go against the definition of a good design.
+    */
+  protected[xml] val strategy: MemoryOptimisationStrategy[Token]
+  protected[xml] val token: Token
 
   private[xml] var current: PullType = null
 
@@ -38,27 +37,28 @@ trait XmlPull extends Iterator[PullType] with DocLike {
   private[xml] var emisc: EndMisc = EndMisc()
 
   def prolog = vprolog
+
   def end = emisc
 
   /**
-   * If the depth is -1 then we haven't hit an element yet, and
-   * start should keep pumping until that happens.
-   *
-   * If the depth is -1 after processing the end root (haveRoot), then we keep pumping into the endMisc
-   */
+    * If the depth is -1 then we haven't hit an element yet, and
+    * start should keep pumping until that happens.
+    *
+    * If the depth is -1 after processing the end root (haveRoot), then we keep pumping into the endMisc
+    */
   protected[xml] var depth = -1
   protected[xml] var haveRoot = false
 
   /**
-   * Pumps until the first elem, always collecting the prolog
-   */
+    * Pumps until the first elem, always collecting the prolog
+    */
   protected[xml] def start = {
     while (depth == -1) {
       current = pumpEvent
       if (current.isLeft && (current.left.get eq PullUtils.dtdDummy)) {
         vprolog = vprolog.copy(dtd = Some(
           DTD("", "", "") // DTD has funnyness TODO find out what it looks like
-          ))
+        ))
       }
 
       if (depth == -1) {
@@ -93,7 +93,7 @@ trait XmlPull extends Iterator[PullType] with DocLike {
 
     var nextEvent = XMLStreamConstants.END_DOCUMENT
     try {
-      val (event, num, odepth, oprolog) = PullUtils.pumpEvent(parser, strategy, token, vprolog, depth){_ => pumpEvent}
+      val (event, num, odepth, oprolog) = PullUtils.pumpEvent(parser, strategy, token, vprolog, depth) { _ => pumpEvent }
       nextEvent = num
       depth = odepth
       vprolog = oprolog
@@ -111,7 +111,7 @@ object PullUtils {
 
   private[xml] val dtdDummy = PI("onlyforme", "init")
 
-  implicit val weAreInAParser : FromParser = IsFromParser
+  implicit val weAreInAParser: FromParser = IsFromParser
 
   def getMisc(c: PullType, in: String): Misc =
     c.fold[Misc](e => e match {
@@ -119,9 +119,10 @@ object PullUtils {
       case ev: PI => Right(ev)
       case _ => error("Got an event (" + e + ") that should not be in the " + in)
     }, f => error("End element found in " + in + " " + c))
+
   // it must be a left and a comment or pi
 
-  def getAttributes[Token <: OptimisationToken]( parser: XMLStreamReader, strategy : MemoryOptimisationStrategy[Token], token : Token ): Attributes = {
+  def getAttributes[Token <: OptimisationToken](parser: XMLStreamReader, strategy: MemoryOptimisationStrategy[Token], token: Token): Attributes = {
 
     val count = parser.getAttributeCount()
 
@@ -135,22 +136,22 @@ object PullUtils {
       // attr qnames must be either prefixed or no namespace
       val aqname: AttributeQName =
         if ((pre eq null) || (pre.length == 0))
-          // no namespace
+        // no namespace
           strategy.noNamespaceQName(local, token) // Right)
         else
           strategy.prefixedQName(local, jqname.getNamespaceURI, pre, token) // Left )
 
       //map = map unsafePlus 
       ar.update(i,
-	strategy.attribute(aqname, 
-		       parser.getAttributeValue(i), token)
-		)
+        strategy.attribute(aqname,
+          parser.getAttributeValue(i), token)
+      )
       i += 1
     }
     scales.xml.impl.AttributeSet.unsafe(ar, count)
   }
 
-  def getNamespaces[Token <: OptimisationToken]( parser: XMLStreamReader, strategy : MemoryOptimisationStrategy[Token], token : Token ): Map[String, String] = {
+  def getNamespaces[Token <: OptimisationToken](parser: XMLStreamReader, strategy: MemoryOptimisationStrategy[Token], token: Token): Map[String, String] = {
     val count = parser.getNamespaceCount()
     var i = 0
     var map = Map[String, String]()
@@ -164,29 +165,29 @@ object PullUtils {
     map
   }
 
-  def getElemQName[Token <: OptimisationToken]( parser: XMLStreamReader, strategy : MemoryOptimisationStrategy[Token], token : Token ) = {
+  def getElemQName[Token <: OptimisationToken](parser: XMLStreamReader, strategy: MemoryOptimisationStrategy[Token], token: Token) = {
     // elems can have all three, prefixed, ns and none
-/*    val jqname = parser.getName()
-    val ns = jqname.getNamespaceURI
-    val pre = jqname.getPrefix
-    val local = jqname.getLocalPart
-*/
+    /*    val jqname = parser.getName()
+        val ns = jqname.getNamespaceURI
+        val pre = jqname.getPrefix
+        val local = jqname.getLocalPart
+    */
     val ns = parser.getNamespaceURI
     val pre = parser.getPrefix
     val local = parser.getLocalName
 
     if ((pre eq null) || (pre.length == 0)) {
-	// ns only or none
+      // ns only or none
       if ((ns eq null) || (ns.length == 0))
         strategy.noNamespaceQName(local, token)
       else
-	strategy.unprefixedQName(local, ns, token)
+        strategy.unprefixedQName(local, ns, token)
     } else
       strategy.prefixedQName(local, ns, pre, token)
-    
+
   }
 
-  def pumpEvent[Token <: OptimisationToken]( parser: XMLStreamReader, strategy : MemoryOptimisationStrategy[Token], token : Token, prolog : Prolog, idepth : Int )(otherEventHandler : Int => PullType) : (PullType, Int, Int, Prolog) = {
+  def pumpEvent[Token <: OptimisationToken](parser: XMLStreamReader, strategy: MemoryOptimisationStrategy[Token], token: Token, prolog: Prolog, idepth: Int)(otherEventHandler: Int => PullType): (PullType, Int, Int, Prolog) = {
     var depth = idepth
     var vprolog = prolog
 
@@ -194,9 +195,9 @@ object PullUtils {
     nextEvent = parser.next
 
     val event: PullType = nextEvent match {
-      case XMLStreamConstants.START_ELEMENT => 
-	depth += 1
-      strategy.elem(getElemQName(parser, strategy, token), getAttributes(parser, strategy, token), getNamespaces(parser, strategy, token), token)
+      case XMLStreamConstants.START_ELEMENT =>
+        depth += 1
+        strategy.elem(getElemQName(parser, strategy, token), getAttributes(parser, strategy, token), getNamespaces(parser, strategy, token), token)
 
       case XMLStreamConstants.END_ELEMENT => depth -= 1; EndElem(getElemQName(parser, strategy, token), getNamespaces(parser, strategy, token))
       case XMLStreamConstants.CHARACTERS => Text(parser.getText)
@@ -206,7 +207,7 @@ object PullUtils {
       case XMLStreamConstants.SPACE => Text(parser.getText) // jdk impl never calls but to be safe we should grab it
       case XMLStreamConstants.START_DOCUMENT => {
         // get the encoding etc
-	// NB the asynch variety can also call this, if no more events are available then it returns the waiting object.
+        // NB the asynch variety can also call this, if no more events are available then it returns the waiting object.
         val ec = parser.getCharacterEncodingScheme()
 
         vprolog = vprolog.copy(decl = Declaration(
@@ -217,11 +218,11 @@ object PullUtils {
 
         val (nev, nex, nde, vvp) = pumpEvent(parser, strategy, token, vprolog, depth)(otherEventHandler) // we don't want to handle this
 
-	// reset to keep the correct values
-	nextEvent = nex
-	depth = nde
-	vprolog = vvp
-	nev
+        // reset to keep the correct values
+        nextEvent = nex
+        depth = nde
+        vprolog = vvp
+        nev
       }
       case XMLStreamConstants.DTD => dtdDummy // push it through in start
 
@@ -230,5 +231,5 @@ object PullUtils {
     }
     (event, nextEvent, depth, vprolog)
   }
-  
+
 }

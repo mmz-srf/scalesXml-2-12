@@ -10,21 +10,24 @@ object SimpleSerializerFactory extends SerializerFactory {
   def apply[R](thunk: Serializer => R)(sdata: SerializerData): R =
     thunk(borrow(sdata))
 
-  def borrow( sdata : SerializerData ) : ExactSerializer =
-    new SimpleSerializer { val data = sdata }
+  def borrow(sdata: SerializerData): ExactSerializer =
+    new SimpleSerializer {
+      val data = sdata
+    }
 
-  def giveBack( serializer : ExactSerializer ) {}
+  def giveBack(serializer: ExactSerializer) {}
 }
 
 /**
- * Performs no validation, sorting of attributes, extra spaces on the end of empty element declarations and uses the short form for empty elements.
- *
- * Basically its good for non-pretty printing debugging only
- *
- */
+  * Performs no validation, sorting of attributes, extra spaces on the end of empty element declarations and uses the short form for empty elements.
+  *
+  * Basically its good for non-pretty printing debugging only
+  *
+  */
 trait SimpleSerializer extends Serializer {
 
   val data: SerializerData
+
   import data._
 
   def item(item: XmlItem, path: List[QName]): Option[Throwable] =

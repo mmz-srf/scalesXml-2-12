@@ -8,20 +8,21 @@ import scales.xml._
 import scales.xml.impl._
 
 /**
- * Base implementation for a correct serializer using LSSerializer to provide escape character references.
- *
- * Developers can override this directly implementing encF, or choose to override createSerializer to further change serialization behaviour
- */ 
+  * Base implementation for a correct serializer using LSSerializer to provide escape character references.
+  *
+  * Developers can override this directly implementing encF, or choose to override createSerializer to further change serialization behaviour
+  */
 trait LSSerializerFactoryBase extends SerializerFactory {
+
   import org.w3c.dom._
   import ls._
 
   type ExactSerializer = serializers.LSSerializer
 
   /**
-   * Override to create the serialazer
-   */ 
-  def createSerializer( sdata: SerializerData, dbf : DocumentBuilderFactory) : serializers.LSSerializer = {
+    * Override to create the serialazer
+    */
+  def createSerializer(sdata: SerializerData, dbf: DocumentBuilderFactory): serializers.LSSerializer = {
     val db = dbf.newDocumentBuilder
     val ndoc = db.newDocument()
     ndoc.setXmlVersion(sdata.version.version)
@@ -39,11 +40,11 @@ trait LSSerializerFactoryBase extends SerializerFactory {
   }
 
   /**
-   * Can the content be encoded in a given charset
-   */
+    * Can the content be encoded in a given charset
+    */
   val encF: Charset => String => Option[Throwable]
 
-  def borrow( sdata : SerializerData ) : ExactSerializer = {
+  def borrow(sdata: SerializerData): ExactSerializer = {
     val dbf = DefaultDOMFactoryPool.grab
 
     val s = createSerializer(sdata, dbf)
@@ -60,11 +61,11 @@ trait LSSerializerFactoryBase extends SerializerFactory {
     dc.setParameter("well-formed", true)
     dc.setParameter("xml-declaration", false)
 
-    s    
+    s
   }
 
-  def giveBack( serializer : ExactSerializer ) {
-    DefaultDOMFactoryPool.giveBack( serializer.docBuilderF )
+  def giveBack(serializer: ExactSerializer) {
+    DefaultDOMFactoryPool.giveBack(serializer.docBuilderF)
   }
 
   def apply[R](thunk: Serializer => R)(sdata: SerializerData): R = {
@@ -79,26 +80,27 @@ trait LSSerializerFactoryBase extends SerializerFactory {
 }
 
 /**
- * XHTML serialization extra touches
- */ 
+  * XHTML serialization extra touches
+  */
 object LSSerializerFactoryXHTML extends LSSerializerConcurrentCacheFactoryXHTML {
   val xhtmlNS = "http://www.w3.org/1999/xhtml"
 
   /**
-   * Local names of all 10 xhtml elements that can be empty, issue #6
-   */ 
-  val canBeEmpty = Set( "area", "base", "br", "col", "hr",
-		       "img", "input", "link", "meta", "param" )
+    * Local names of all 10 xhtml elements that can be empty, issue #6
+    */
+  val canBeEmpty = Set("area", "base", "br", "col", "hr",
+    "img", "input", "link", "meta", "param")
 }
 
 trait LSSerializerConcurrentCacheFactoryXHTML extends LSSerializerConcurrentCacheFactory {
+
   import org.w3c.dom._
   import ls._
 
   /**
-   * Override to create the serialazer
-   */ 
-  override def createSerializer( sdata: SerializerData, dbf : DocumentBuilderFactory) : serializers.LSSerializer = {
+    * Override to create the serialazer
+    */
+  override def createSerializer(sdata: SerializerData, dbf: DocumentBuilderFactory): serializers.LSSerializer = {
     val db = dbf.newDocumentBuilder
     val ndoc = db.newDocument()
     ndoc.setXmlVersion(sdata.version.version)
@@ -118,29 +120,30 @@ trait LSSerializerConcurrentCacheFactoryXHTML extends LSSerializerConcurrentCach
 
 
 /**
- * Default implementation of serialization
- */ 
+  * Default implementation of serialization
+  */
 object LSSerializerFactory extends LSSerializerConcurrentCacheFactory {
 }
 
 trait LSSerializerConcurrentCacheFactory extends LSSerializerFactoryBase {
+
   import java.util.concurrent.ConcurrentHashMap
 
   import scales.utils.collection.Once
 
   /**
-   * On the assumption that a given apps qname population is larger than that of its possible encodings.
-   */
+    * On the assumption that a given apps qname population is larger than that of its possible encodings.
+    */
   val globalEncMap = new ConcurrentHashMap[String, ConcurrentHashMap[Charset, Once[Option[Throwable]]]]
 
   val encF = { encoding: Charset =>
     val encoder = encoding.newEncoder
 
     /**
-     * Perhaps silly optimisation given a bug about it but worth trying
-     *
-     * If the charset contains utf8 then its able to support all unicode characters that utf8 can.  Wierdly I would also have expected utf8 to contain32 as it contains utf16 - must verify.
-     */
+      * Perhaps silly optimisation given a bug about it but worth trying
+      *
+      * If the charset contains utf8 then its able to support all unicode characters that utf8 can.  Wierdly I would also have expected utf8 to contain32 as it contains utf16 - must verify.
+      */
     if (encoding.contains(defaultCharset)) { s: String => None }
     else { s: String =>
 
@@ -159,12 +162,13 @@ object LSSerializerNoCacheFactory extends LSSerializerNoCacheFactoryT {
 }
 
 /**
- * This variety does not use a thread safe global cache, use when your data
- * is progressivly radically different for each run.
- *
- * If you don't like this scheme either simply implement LSSerializerFactoryBase with your own caching needs.
- */
+  * This variety does not use a thread safe global cache, use when your data
+  * is progressivly radically different for each run.
+  *
+  * If you don't like this scheme either simply implement LSSerializerFactoryBase with your own caching needs.
+  */
 trait LSSerializerNoCacheFactoryT extends LSSerializerFactoryBase {
+
   import java.util.HashMap
 
   val encF = { encoding: Charset =>
@@ -172,8 +176,8 @@ trait LSSerializerNoCacheFactoryT extends LSSerializerFactoryBase {
     val map = new HashMap[String, Option[Throwable]]
 
     /**
-     * See the above explanation for this
-     */
+      * See the above explanation for this
+      */
     if (encoding.contains(defaultCharset)) { s: String => None }
     else { s: String =>
 
@@ -194,42 +198,45 @@ trait LSSerializerNoCacheFactoryT extends LSSerializerFactoryBase {
 }
 
 /**
- * Adds an extra space after an empty element
- */ 
+  * Adds an extra space after an empty element
+  */
 trait XHTMLLSSerializer extends LSSerializer {
+
   import data._
 
   override def emptyElement(qName: QName, attributes: Traversable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] =
     doElem(qName, attributes, namespaces, declareDefaultNS) orElse {
       // #6 
-      val canBeEmpty = 
-	if (qName.namespace.uri == LSSerializerFactoryXHTML.xhtmlNS)
-	  if (LSSerializerFactoryXHTML.canBeEmpty(qName.local))
-	    true
-	  else
-	    false // all others must be <></>
-	else
-	  true
-      
+      val canBeEmpty =
+        if (qName.namespace.uri == LSSerializerFactoryXHTML.xhtmlNS)
+          if (LSSerializerFactoryXHTML.canBeEmpty(qName.local))
+            true
+          else
+            false // all others must be <></>
+        else
+          true
+
       if (canBeEmpty) {
-	out.append(" />")
-	None
+        out.append(" />")
+        None
       } else {
-	out.append(">")
-	endElement(qName, path)
+        out.append(">")
+        endElement(qName, path)
       }
     }
 }
 
 /**
- * Default serializer, correctness first.  Uses the LSSerializer present in each DOM L3 impl.  XmlItems are always serialized with the LS, elements and attributes are however for speed reasons, verified for encoding once per QName; the attribute values themselves are written via Text nodes and LS.
- */
+  * Default serializer, correctness first.  Uses the LSSerializer present in each DOM L3 impl.  XmlItems are always serialized with the LS, elements and attributes are however for speed reasons, verified for encoding once per QName; the attribute values themselves are written via Text nodes and LS.
+  */
 trait LSSerializer extends Serializer {
+
   import javax.xml.parsers._
   import org.w3c.dom._
   import ls._
 
   val data: SerializerData
+
   import data._
 
   val docBuilderF: DocumentBuilderFactory
@@ -241,8 +248,8 @@ trait LSSerializer extends Serializer {
   val lsaout: LSOutput
 
   /**
-   * Can the ncName be mapped for a given encoding
-   */
+    * Can the ncName be mapped for a given encoding
+    */
   val encMap: String => Option[Throwable]
 
   lazy val textNode = doc.createTextNode("")
@@ -250,8 +257,8 @@ trait LSSerializer extends Serializer {
   lazy val encoder = encoding.newEncoder()
 
   /**
-   * See default SF for logic on this, however faulty :-)
-   */
+    * See default SF for logic on this, however faulty :-)
+    */
   lazy val canEncode =
     if (encoding.contains(defaultCharset)) { s: String => true }
     else { s: String => encoder.canEncode(s) }
@@ -268,20 +275,20 @@ trait LSSerializer extends Serializer {
   }
 
   /**
-   * Performs the actual write for Comments/CData/PI, due to LSSerializer issues this function is seperated for easy overriding, should anyone really trust their DOM/JAXP versions.
-   *
-   * For this method to be called the encoding has already been verified.
-   */
+    * Performs the actual write for Comments/CData/PI, due to LSSerializer issues this function is seperated for easy overriding, should anyone really trust their DOM/JAXP versions.
+    *
+    * For this method to be called the encoding has already been verified.
+    */
   def writeNonText(item: XmlItem, path: List[QName]): Option[Throwable] =
     SerializerHelpers.item(out, item, path)
 
   /**
-   * LSSerializer in 6_24 is garbage, but the xalan one isn't much better.  jre uses hex, xalan numberic character refs.  And jre is totally useless for cdata, writing no end part, both ignore the split-cdata-sections option when escaping, choosing to split, I assume this is only being done for character refs but follows the DOMConfiguration (instead of the load and save spec) for end sequence splitting.
-   *
-   * As such there only seems to be one safe way to handle this:
-   *   # Use the encoder to check if a CData or Comment can be written without splitting, throw if it can't.
-   *   # Write the start and end CData directly
-   */
+    * LSSerializer in 6_24 is garbage, but the xalan one isn't much better.  jre uses hex, xalan numberic character refs.  And jre is totally useless for cdata, writing no end part, both ignore the split-cdata-sections option when escaping, choosing to split, I assume this is only being done for character refs but follows the DOMConfiguration (instead of the load and save spec) for end sequence splitting.
+    *
+    * As such there only seems to be one safe way to handle this:
+    * # Use the encoder to check if a CData or Comment can be written without splitting, throw if it can't.
+    * # Write the start and end CData directly
+    */
   def item(item: XmlItem, path: List[QName]): Option[Throwable] = {
     val canEncodeI: Option[Throwable] = item match {
       case x: scales.xml.Text =>
@@ -337,8 +344,8 @@ trait LSSerializer extends Serializer {
     }, before + toCt + after)
 
   /**
-   * Override this to order the attributes.
-   */
+    * Override this to order the attributes.
+    */
   def doElem(qName: QName, attribs: Traversable[Attribute], ns: Map[String, String], declareDefaultNS: Option[String]): Option[Throwable] = {
 
     {
@@ -365,12 +372,12 @@ trait LSSerializer extends Serializer {
         r orElse {
           // check the prefix is valid
           if (QNameCharUtils.validXmlPrefix(x._1)(version) &&
-	    QNameCharUtils.validXmlNamespace(x._2)(version)) {
+            QNameCharUtils.validXmlNamespace(x._2)(version)) {
             out.append(" xmlns:")
             encMap(x._1) orElse
               writeAttr(x._1 + "=\"", x._2, "\"")
           } else
-            Some(IncompatibleQNameVersions("NS:"+x._1+"->"+x._2))
+            Some(IncompatibleQNameVersions("NS:" + x._1 + "->" + x._2))
         }
       }
 
@@ -380,10 +387,10 @@ trait LSSerializer extends Serializer {
 
       attribs.foldLeft(None: Option[Throwable]) { (r, x) =>
         r orElse {
-	  val name = x.name
+          val name = x.name
           // is the name valid
           if (name.qNameVersion == Xml11 && version == Xml10)
-            Some(IncompatibleQNameVersions("Attr:"+name.qName))
+            Some(IncompatibleQNameVersions("Attr:" + name.qName))
           else {
             val n = name.qName
             encMap(n) orElse

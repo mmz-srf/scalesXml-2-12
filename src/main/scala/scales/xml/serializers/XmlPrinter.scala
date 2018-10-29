@@ -3,7 +3,6 @@ package scales.xml.serializers
 import java.io.Writer
 import java.nio.charset.Charset
 
-import scales.utils._
 import scales.utils.resources._
 import scales.xml.impl.NamespaceDefaults
 import scales.xml.{Declaration, DocLike, Elem, EmptyDoc, Misc, ScalesXml, XmlItem, XmlPull, XmlVersion}
@@ -12,14 +11,14 @@ import scala.collection.immutable.Map
 
 trait XmlPrinterImplicits {
 
-  implicit def fromSerializeableToWriteTo[T : SerializeableXml]( it : T ) =
+  implicit def fromSerializeableToWriteTo[T: SerializeableXml](it: T) =
     new WriteTo[T](it)
 
 
   /**
-   * Import to _ and replace with your own SerializerFactory if desired
-   */
-  implicit val defaultSerializerFactory : SerializerFactory = LSSerializerFactory
+    * Import to _ and replace with your own SerializerFactory if desired
+    */
+  implicit val defaultSerializerFactory: SerializerFactory = LSSerializerFactory
 
   case class DeclarationConverter(decl: Declaration) {
     def withWriter(out: Writer): SerializerData = scales.xml.withWriter(decl, out)
@@ -32,9 +31,9 @@ trait XmlPrinterImplicits {
 trait XmlPrinter {
 
   /**
-   * a) add / replace in mappings
-   * b) add to declMap
-   */
+    * a) add / replace in mappings
+    * b) add to declMap
+    */
   def laddNS(entry: (String, String), mappings: Map[String, String], declMap: Map[String, String]) = {
     val mapping = mappings.get(entry._1)
 
@@ -55,7 +54,7 @@ trait XmlPrinter {
     }
   }
 
-  def doElement(x: Elem, currentMappings : Map[String, String]) = {
+  def doElement(x: Elem, currentMappings: Map[String, String]) = {
     import ScalesXml._
 
     // for each of our namespace mappings that differ (or are not there)
@@ -162,14 +161,14 @@ trait XmlPrinter {
   type CloseablePull = XmlPull with java.io.Closeable with IsClosed
 
   /**
-   * Placeholder - prefer serialize instead
-   */
+    * Placeholder - prefer serialize instead
+    */
   def foldPrint[T: SerializeableXml](pout: XmlOutput)(it: T) =
     serialize(pout)(it)
 
   /**
-   * Serializes items which can behave like xml.
-   */
+    * Serializes items which can behave like xml.
+    */
   def serialize[T: SerializeableXml](pout: XmlOutput)(it: T) =
     pout.serializerF {
       val sxml = implicitly[SerializeableXml[T]]
@@ -178,25 +177,25 @@ trait XmlPrinter {
     }(pout.data)
 
   /**
-   * Writes the xml to a given Writer with defaults provided for .
-   */ 
-  def writeTo[T](it: T, output : Writer, version: Option[XmlVersion] = None, encoding: Option[Charset] = None)(implicit serializerFI: SerializerFactory, sxml: SerializeableXml[T]) : Option[Throwable] = {
+    * Writes the xml to a given Writer with defaults provided for .
+    */
+  def writeTo[T](it: T, output: Writer, version: Option[XmlVersion] = None, encoding: Option[Charset] = None)(implicit serializerFI: SerializerFactory, sxml: SerializeableXml[T]): Option[Throwable] = {
     val decl = sxml.doc(it).prolog.decl
-    val sd = SerializerData(output, 
-      version.getOrElse(decl.version), 
+    val sd = SerializerData(output,
+      version.getOrElse(decl.version),
       encoding.getOrElse(decl.encoding))
     val xo = XmlOutput(sd)
-//    println(xo.serializerF.getClass.getName)
-//    println(implicitly[SerializerFactory].getClass.getName)
+    //    println(xo.serializerF.getClass.getName)
+    //    println(implicitly[SerializerFactory].getClass.getName)
     serialize(xo)(it)
   }
 
 
   /**
-   * Prints to stdout, useful for testing etc  Will dump an error if one is found.
-   *
-   * Note it outputs to the vmDefaultCharset so it should always be C+P able
-   */
+    * Prints to stdout, useful for testing etc  Will dump an error if one is found.
+    *
+    * Note it outputs to the vmDefaultCharset so it should always be C+P able
+    */
   def printTree[T](xml: T)(implicit serf: SerializerFactory, sxml: SerializeableXml[T]): Unit = {
     val out = new java.io.PrintWriter(System.out)
 
@@ -211,8 +210,8 @@ trait XmlPrinter {
   }
 
   /**
-   * Returns a string version of the tree or throws
-   */
+    * Returns a string version of the tree or throws
+    */
   def asString[T](xml: T)(implicit serf: SerializerFactory, sxml: SerializeableXml[T]): String = {
     val builder = new java.io.StringWriter()
 
@@ -224,21 +223,22 @@ trait XmlPrinter {
   }
 
   /**
-   * Just for items, given we don't want to generally serialize them directly but as part of a tree.  Useful for debugging only
-   */ 
+    * Just for items, given we don't want to generally serialize them directly but as part of a tree.  Useful for debugging only
+    */
   def itemAsString(xmlItem: XmlItem)(implicit serf: SerializerFactory): String = {
     implicit val items = new SerializeableXml[XmlItem] {
       def doc(it: XmlItem) = EmptyDoc()
+
       def apply(it: XmlItem)(out: XmlOutput, serializer: Serializer): (XmlOutput, Option[Throwable]) = (out, serializer.item(it, out.path))
     }
-    
+
     val builder = new java.io.StringWriter()
     val o = XmlOutput(SerializerData(builder))
-    serf{ s =>
+    serf { s =>
       s.item(xmlItem, o.path)
     }(o.data)
-//    foldPrint(XmlOutput(SerializerData(builder)))(xml) foreach {
-  //    throw _
+    //    foldPrint(XmlOutput(SerializerData(builder)))(xml) foreach {
+    //    throw _
     //}
     builder.toString
   }

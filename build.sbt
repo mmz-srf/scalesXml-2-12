@@ -1,19 +1,20 @@
-name := "scalesXml-2-12"
-organization := "ch.srf"
+
+name := "scales-xml"
+organization := "org.scalesxml"
+
+publishTo := Some("mmz-repository" at "http://maven.admin.srf.ch")
+
 
 
 // https://mvnrepository.com/artifact/org.scala-lang.modules/scala-xml
 libraryDependencies ++= Seq(
-  "commons-codec" % "commons-codec" % "1.4",
-  "org.slf4j" % "slf4j-api" % "1.6.1",
   SrfPlugin.Deps.Compile.scalazCore,
-  SrfPlugin.Deps.Compile.scalaXml
-  //,
-  //"commons-jxpath" % "commons-jxpath" % "1.3"
+  SrfPlugin.Deps.Compile.scalaXml,
+  SrfPlugin.Deps.Test.specs2Core
 )
 
-lazy val root = (project in file("."))
-  .enablePlugins(BuildInfoPlugin, SrfPlugin)
+
+
 
 scalaVersion in ThisBuild := "2.12.3"
 crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.3")

@@ -31,8 +31,8 @@ trait StackUtils {
   def sameBase(test: Stack[Int], against: Stack[Int]): Boolean = {
 
     /**
-     * Should go into a seperate util class along with compare
-     */
+      * Should go into a seperate util class along with compare
+      */
     @scala.annotation.tailrec
     def iSameBase(test: Stack[Int], against: Stack[Int]): Boolean = {
       if (test.isEmpty && against.isEmpty == false) {
@@ -52,6 +52,7 @@ trait StackUtils {
         }
       }
     }
+
     iSameBase(test, against)
   }
 

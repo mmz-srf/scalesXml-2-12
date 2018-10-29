@@ -8,12 +8,12 @@ object AttributeSetImplHelper {
   val arrM = implicitly[ClassManifest[Attribute]]
 }
 
-trait AttributesImpl extends ArraySetsFactory[Attribute]{
+trait AttributesImpl extends ArraySetsFactory[Attribute] {
   type A = Attribute
-  
+
   /**
-   * @returns the equality Equal type class instance used
-   */ 
+    * @returns the equality Equal type class instance used
+    */
   def equal: scalaz.Equal[A] = EqualsHelpers.aqnameEqual
 
   implicit def arrayManifest: ClassManifest[A] = AttributeSetImplHelper.arrM
@@ -59,8 +59,8 @@ object AttributeSet extends AttributesImpl {
   val empty: ArraySet[Attribute] = new EmptyArraySet[A] with AttributesImpl {}
 
   /**
-   * Creates an ArraySet based on the input array and size but does so without checking set membership.
-   */
+    * Creates an ArraySet based on the input array and size but does so without checking set membership.
+    */
   def unsafe(ar: Array[Attribute], len: Int): ArraySet[Attribute] =
     len match {
       case 1 => one(ar(0))
@@ -69,11 +69,11 @@ object AttributeSet extends AttributesImpl {
       case 4 => four(ar(0), ar(1), ar(2), ar(3))
       case 5 => five(ar(0), ar(1), ar(2), ar(3), ar(4))
       case _ if (len <= 0) => empty
-      case _ => 
-	// take the hit
-	val na = Array.ofDim(len)
-	Array.copy(ar, 0, na, 0, len)
-	more(na)    
+      case _ =>
+        // take the hit
+        val na = Array.ofDim(len)
+        Array.copy(ar, 0, na, 0, len)
+        more(na)
     }
 
 }

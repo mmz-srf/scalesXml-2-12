@@ -5,18 +5,20 @@ import scales.xml._
 import scales.xml.impl.{FromParser, IsFromParser, NameCreators, TreeProxies}
 import scales.xml.parser.strategies.{OptimisationToken, PathOptimisationStrategy}
 
-class Handler[Token <: OptimisationToken](strategy : PathOptimisationStrategy[Token])(implicit val defaultVersion : XmlVersion) extends org.xml.sax.ext.DefaultHandler2 {
+class Handler[Token <: OptimisationToken](strategy: PathOptimisationStrategy[Token])(implicit val defaultVersion: XmlVersion) extends org.xml.sax.ext.DefaultHandler2 {
+
   import NameCreators._
   import org.xml.sax._
-  
+
   //    import ScalesXml.toQName // Note we aren't validating the names here anyway so we don't need to use the correct xml version, future version may double check perhaps?
 
-  private[this] implicit val weAreInAParser : FromParser = IsFromParser
+  private[this] implicit val weAreInAParser: FromParser = IsFromParser
 
-  private[this] val token : Token = strategy.createToken
+  private[this] val token: Token = strategy.createToken
 
   // only trees have kids, and we only need to keep the parent
   private[this] val buf = new TreeProxies()
+
   def getBuf = buf
 
   private[this] var isCData = false
@@ -28,46 +30,47 @@ class Handler[Token <: OptimisationToken](strategy : PathOptimisationStrategy[To
   private[this] var end = EndMisc()
 
   def getProlog = prolog
+
   def getEnd = end
 
-  private[this] var locator : Locator = _
-  
+  private[this] var locator: Locator = _
+
   // used for judging PI or Comments
   private[this] var inprolog = true
 
   def checkit(what: String) {
   }
 
-  override def startDTD(name : String, publicId : String, systemId : String) {
+  override def startDTD(name: String, publicId: String, systemId: String) {
     prolog = prolog.copy(dtd = Some(DTD(name, publicId, systemId)))
   }
 
-  override def processingInstruction(target : String, data : String) {
+  override def processingInstruction(target: String, data: String) {
     val pi = PI(target, data)
     addMisc(Right(pi))
-  } 
+  }
 
   override def startPrefixMapping(prefix: String, uri: String) {
     nsDeclarations += (prefix -> uri)
   }
 
-  override def setDocumentLocator( loc : Locator ) {
+  override def setDocumentLocator(loc: Locator) {
     locator = loc
   }
 
   override def startElement(uri: String,
-			    localName: String,
-			    qName: String,
-			    attributes: org.xml.sax.Attributes) {
+                            localName: String,
+                            qName: String,
+                            attributes: org.xml.sax.Attributes) {
 
     if (inprolog) {
       if (locator.isInstanceOf[Locator2]) {
-	val loc2 = locator.asInstanceOf[Locator2]
-	prolog = prolog.copy( decl = prolog.decl.copy(encoding = (
-	  if (loc2.getEncoding ne null) {
-	    java.nio.charset.Charset.forName(loc2.getEncoding)
-	  } else scales.utils.defaultCharset
-	)))	  
+        val loc2 = locator.asInstanceOf[Locator2]
+        prolog = prolog.copy(decl = prolog.decl.copy(encoding = (
+          if (loc2.getEncoding ne null) {
+            java.nio.charset.Charset.forName(loc2.getEncoding)
+          } else scales.utils.defaultCharset
+          )))
       }
     }
 
@@ -80,17 +83,17 @@ class Handler[Token <: OptimisationToken](strategy : PathOptimisationStrategy[To
     while (i < length) {
       val qname = aqn(attributes.getURI(i), attributes.getLocalName(i), attributes.getQName(i), strategy, token)
       attrs.update(i,
-		   strategy.attribute(qname, 
-			 attributes.getValue(i), 
-			 token)
-		 )
+        strategy.attribute(qname,
+          attributes.getValue(i),
+          token)
+      )
 
       i += 1
     }
 
     // copy the created attribs
     val attribs = scales.xml.impl.AttributeSet.unsafe(attrs, length)
-    
+
     // use the current nsMap
     val elem = strategy.elem(
       eqn(uri, localName, qName, strategy, token)
@@ -104,8 +107,8 @@ class Handler[Token <: OptimisationToken](strategy : PathOptimisationStrategy[To
   }
 
   override def endElement(uri: String,
-			  localName: String,
-			  qName: String) {
+                          localName: String,
+                          qName: String) {
 
     // pop it and we are now with the correct parent
     // let the strategy decide what actually happens
@@ -115,19 +118,19 @@ class Handler[Token <: OptimisationToken](strategy : PathOptimisationStrategy[To
   override def comment(ch: Array[Char], offset: Int, length: Int): Unit = {
     val text = new String(ch, offset, length)
 
-    addMisc( Left(Comment(text)) )      
+    addMisc(Left(Comment(text)))
   }
 
-  def addMisc( miscItem : Misc ) {
-    if (inprolog) 
+  def addMisc(miscItem: Misc) {
+    if (inprolog)
       prolog = prolog.copy(misc = prolog.misc :+ miscItem)
     else {
       // need to tell if its finished the root elem or not
       if (buf.depth == -1)
-	end = end.copy( misc = end.misc :+ miscItem)
+        end = end.copy(misc = end.misc :+ miscItem)
       else
-	// add it like a normal child
-	buf.addChild( miscItem.fold[XmlItem](x=>x, y=>y)) 
+      // add it like a normal child
+        buf.addChild(miscItem.fold[XmlItem](x => x, y => y))
     }
   }
 
@@ -140,7 +143,12 @@ class Handler[Token <: OptimisationToken](strategy : PathOptimisationStrategy[To
     buf.addChild(child)
   }
 
-  override def startCDATA() { isCData = true; }
-  override def endCDATA() { isCData = false; }
+  override def startCDATA() {
+    isCData = true;
+  }
+
+  override def endCDATA() {
+    isCData = false;
+  }
 
 }
