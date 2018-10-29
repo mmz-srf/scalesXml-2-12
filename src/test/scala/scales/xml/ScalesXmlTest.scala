@@ -22,8 +22,6 @@ import scala.xml.Source
 
 object ScalesXmlTest extends Specification {
 
-  type V1[X] = ValidationNel[String, X]
-  private val VApply = implicitly[Apply[V1]]
 
   private def childValidation(name: String)
                              (implicit p: XmlPath) =
