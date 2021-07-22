@@ -1,6 +1,7 @@
 package scales.xml.impl
 
 //import scales.utils.collection.path.{Path, Node, Position}
+import scala.reflect.ClassTag
 import scales.utils.collection.path.Position
 import scales.xml.{Attribute, AttributeQName, Doc, Elem, NoNamespaceQName, PrefixedQName, QName, XCC, XmlCBF, XmlItem, XmlPath, XmlTree, XmlVersion}
 
@@ -42,7 +43,7 @@ trait XmlTypesImplicits {
   /**
     * Implicit manifest for sorting positions, big silent cpu eater otherwise, just like the builders.
     */
-  implicit val xpathSortingClassManifest = implicitly[ClassManifest[(Position[XmlItem, Elem, XCC], XmlPath)]]
+  implicit val xpathSortingClassTag = implicitly[ClassTag[(Position[XmlItem, Elem, XCC], XmlPath)]]
 
   /**
     * Defaults to NotFromParser

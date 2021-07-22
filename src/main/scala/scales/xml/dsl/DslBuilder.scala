@@ -1,5 +1,6 @@
 package scales.xml.dsl
 
+import scales.utils.collection.ImmutableArrayProxy
 import scales.utils.collection.path._
 import scales.utils.{foldPositions, item, subtree, top}
 import scales.xml.ScalesXml.{fromParserDefault, xmlCBF}
@@ -13,7 +14,7 @@ object DslBuilder {
   /**
     * Creates a tree with @elem as the root
     */
-  def elem2tree(elem: Elem): XmlTree = subtree[XmlItem, Elem, XCC](elem, emptyChildren).right.get
+  def elem2tree(elem: Elem): XmlTree = subtree[XmlItem, Elem, ImmutableArrayProxy](elem, emptyChildren).right.get
 
   /**
     * Creates a tree with @qname for the root Elem

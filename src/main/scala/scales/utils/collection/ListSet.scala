@@ -4,6 +4,7 @@ import scalaz.Equal
 import scales.utils.Equiv
 
 import scala.annotation.tailrec
+import scala.Iterable
 
 //TODO also integrate the non quadratic add/apply from PaulPs fixes, tough as we can't use hashCode or == directly we can't re-use hashset....
 
@@ -30,11 +31,11 @@ class ListSet[A: Equal](val plusFast: Boolean = false) extends Iterable[A] {
 
   val equal = implicitly[Equal[A]]
 
-  def ++(other: Traversable[A]) = other.foldLeft(this)(_ + _)
+  def ++(other: Iterable[A]) = other.foldLeft(this)(_ + _)
 
-  def --(other: Traversable[A]) = other.foldLeft(this)(_ - _)
+  def --(other: Iterable[A]) = other.foldLeft(this)(_ - _)
 
-  def --[B, C](other: Traversable[B])(implicit equiv: Equiv[C], viewA: A => C, viewB: B => C) = other.foldLeft(this)(_ - _)
+  def --[B, C](other: Iterable[B])(implicit equiv: Equiv[C], viewA: A => C, viewB: B => C) = other.foldLeft(this)(_ - _)
 
   /** Returns the number of elements in this set.
     *
@@ -54,7 +55,7 @@ class ListSet[A: Equal](val plusFast: Boolean = false) extends Iterable[A] {
   /**
     * The default empty doesn't really work for us as we can't hide away the equality, so doing it here
     */
-  def empty = new ListSet[A]
+  override def empty = new ListSet[A]
 
   /**
     * With another level of indirection, the caller decides what Equal to use.

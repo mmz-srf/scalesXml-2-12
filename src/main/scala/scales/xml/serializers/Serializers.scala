@@ -5,6 +5,7 @@ import java.nio.charset.Charset
 
 import scales.utils._
 import scales.xml._
+import scala.Iterable
 
 /**
   * Interface used for serializing the XML events, same for both stream and tree.
@@ -24,9 +25,9 @@ trait Serializer {
 
   def item(item: XmlItem, path: List[QName]): Option[Throwable]
 
-  def emptyElement(qName: QName, attributes: Traversable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable]
+  def emptyElement(qName: QName, attributes: Iterable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable]
 
-  def startElement(qName: QName, attributes: Traversable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable]
+  def startElement(qName: QName, attributes: Iterable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable]
 
   def endElement(qName: QName, path: List[QName]): Option[Throwable]
 

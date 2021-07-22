@@ -2,9 +2,13 @@ package scales.utils.collection
 
 import scales.utils.collection.array._
 
-import scala.collection.generic.{CanBuildFrom, GenericCompanion, GenericTraversableTemplate, SeqFactory}
+import scala.collection.BuildFrom
+import scala.collection.IterableFactoryDefaults
 import scala.collection.mutable.Builder
-import scala.collection.{IndexedSeq, IndexedSeqOptimized}
+import scala.collection.Seq
+import scala.collection.SeqFactory
+import scala.collection.{IndexedSeqOps, IterableOnce}
+import scala.reflect.ClassTag
 
 object ImmutableArrayProxyBuilder {
   final val vectorAfter = 31
@@ -94,7 +98,7 @@ case class ImmutableArrayProxyBuilder[A]() extends Builder[A, ImmutableArrayProx
       }
     }
 
-  override def ++=(xs: TraversableOnce[A]): this.type = {
+  override def addAll(xs: IterableOnce[A]): this.type = {
     // if its already a vector don't start with arrays again
     if (!haveChosen && xs.isInstanceOf[VectorImpl[A]]) {
       inVector = true
@@ -123,7 +127,7 @@ case class ImmutableArrayProxyBuilder[A]() extends Builder[A, ImmutableArrayProx
     this
   }
 
-  def +=(elem: A): this.type = {
+  def addOne(elem: A): this.type = {
     length += 1
     if (inVector) {
       vectorBuilder.+=(elem)
@@ -156,13 +160,15 @@ case class ImmutableArrayProxyBuilder[A]() extends Builder[A, ImmutableArrayProx
   * Wraps behaviour of ImmutableArray like objects, when the array is greater than 31 it will be swapped to Vector.
   *
   */
-trait ImmutableArrayProxy[+A] extends IndexedSeq[A] with IndexedSeqOptimized[A, ImmutableArrayProxy[A]] with GenericTraversableTemplate[A, ImmutableArrayProxy] {
+trait ImmutableArrayProxy[+A]
+  extends Seq[A]
+  with IndexedSeqOps[A, ImmutableArrayProxy, ImmutableArrayProxy[A]]
+  with IterableFactoryDefaults[A, ImmutableArrayProxy] {
 
-  @inline override def companion: GenericCompanion[ImmutableArrayProxy] = ImmutableArrayProxy
+  def ar: IterableOnce[A]
 
-  override protected[this] def newBuilder: Builder[A, ImmutableArrayProxy[A]] = ImmutableArrayProxy.newBuilder[A]
-
-  def ar: TraversableOnce[A]
+  override def iterableFactory: SeqFactory[ImmutableArrayProxy] =
+    ImmutableArrayProxy
 
 }
 
@@ -185,17 +191,23 @@ object ImmutableArrayProxy extends SeqFactory[ImmutableArrayProxy] {
   : Builder[A, ImmutableArrayProxy[A]] =
     ImmutableArrayProxyBuilder()
 
-  @inline implicit def canBuildFrom[T](implicit ma: ClassManifest[T]): CanBuildFrom[ImmutableArrayProxy[_], T, ImmutableArrayProxy[T]] = new ImmutableArrayProxyCBF[T] {
+  @inline implicit def canBuildFrom[T](implicit ma: ClassTag[T]): BuildFrom[ImmutableArrayProxy[_], T, ImmutableArrayProxy[T]] = new ImmutableArrayProxyCBF[T] {
     val m = ma
+    def fromSpecific(from: scales.utils.collection.ImmutableArrayProxy[_])(it: scala.collection.IterableOnce[T]): scales.utils.collection.ImmutableArrayProxy[T] = ???
+    def newBuilder(from: scales.utils.collection.ImmutableArrayProxy[_]): scala.collection.mutable.Builder[T,scales.utils.collection.ImmutableArrayProxy[T]] = ???
   }
 
-  trait ImmutableArrayProxyCBF[T] extends CanBuildFrom[ImmutableArrayProxy[_], T, ImmutableArrayProxy[T]] {
+  trait ImmutableArrayProxyCBF[T] extends BuildFrom[ImmutableArrayProxy[_], T, ImmutableArrayProxy[T]] {
 
-    val m: ClassManifest[T]
-
-    def apply(from: ImmutableArrayProxy[_]): Builder[T, ImmutableArrayProxy[T]] = newBuilder
-
-    def apply: Builder[T, ImmutableArrayProxy[T]] = newBuilder
+    val m: ClassTag[T]
   }
+  override def from[A](source: scala.collection.IterableOnce[A]): scales.utils.collection.ImmutableArrayProxy[A] =
+    new ImmutableArrayProxy[A] {
+      override def apply(i: Int): A = source.toList(i)
+
+      override def length: Int = source.size
+
+      override lazy val ar = source
+    }
 
 }

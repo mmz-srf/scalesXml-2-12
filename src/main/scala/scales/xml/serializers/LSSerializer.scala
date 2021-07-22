@@ -6,6 +6,7 @@ import javax.xml.parsers._
 import scales.utils._
 import scales.xml._
 import scales.xml.impl._
+import scala.Iterable
 
 /**
   * Base implementation for a correct serializer using LSSerializer to provide escape character references.
@@ -204,7 +205,7 @@ trait XHTMLLSSerializer extends LSSerializer {
 
   import data._
 
-  override def emptyElement(qName: QName, attributes: Traversable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] =
+  override def emptyElement(qName: QName, attributes: Iterable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] =
     doElem(qName, attributes, namespaces, declareDefaultNS) orElse {
       // #6 
       val canBeEmpty =
@@ -346,7 +347,7 @@ trait LSSerializer extends Serializer {
   /**
     * Override this to order the attributes.
     */
-  def doElem(qName: QName, attribs: Traversable[Attribute], ns: Map[String, String], declareDefaultNS: Option[String]): Option[Throwable] = {
+  def doElem(qName: QName, attribs: Iterable[Attribute], ns: Map[String, String], declareDefaultNS: Option[String]): Option[Throwable] = {
 
     {
       if (qName.qNameVersion == Xml11 && version == Xml10)
@@ -402,13 +403,13 @@ trait LSSerializer extends Serializer {
     }
   }
 
-  def emptyElement(qName: QName, attributes: Traversable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] =
+  def emptyElement(qName: QName, attributes: Iterable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] =
     doElem(qName, attributes, namespaces, declareDefaultNS) orElse {
       out.append("/>")
       None
     }
 
-  def startElement(qName: QName, attributes: Traversable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] =
+  def startElement(qName: QName, attributes: Iterable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] =
     doElem(qName, attributes, namespaces, declareDefaultNS) orElse {
       out.append(">")
       None
