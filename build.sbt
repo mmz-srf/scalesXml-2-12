@@ -9,8 +9,8 @@ libraryDependencies ++= Seq(
   SrfPlugin.Deps.Test.Specs2.core,
 )
 
-scalaVersion in ThisBuild := "2.13.6"
-crossScalaVersions in ThisBuild := Seq((ThisBuild / scalaVersion).value)
+ThisBuild / scalaVersion:= "2.13.6"
+ThisBuild / crossScalaVersions := Seq((ThisBuild / scalaVersion).value)
 
 scalacOptions --= Seq(
   // See other posts in the series for other helpful options

@@ -2,7 +2,7 @@ addSbtPlugin("io.spray" % "sbt-revolver" % "0.9.1")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
 
-addSbtPlugin("ch.srf" % "srf-sbt-plugin" % "2.3.134-SNAPSHOT")
+addSbtPlugin("ch.srf" % "srf-sbt-plugin" % "2.3.137")
 
 
 //for sbt-native-packager
