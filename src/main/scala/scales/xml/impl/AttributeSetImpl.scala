@@ -1,11 +1,12 @@
 package scales.xml.impl
 
+import scala.reflect.ClassTag
 import scales.utils.collection.array._
 import scales.utils.collection.{ArraySet, ArraySetsFactory}
 import scales.xml.Attribute
 
 object AttributeSetImplHelper {
-  val arrM = implicitly[ClassManifest[Attribute]]
+  val arrM = implicitly[ClassTag[Attribute]]
 }
 
 trait AttributesImpl extends ArraySetsFactory[Attribute] {
@@ -16,7 +17,7 @@ trait AttributesImpl extends ArraySetsFactory[Attribute] {
     */
   def equal: scalaz.Equal[A] = EqualsHelpers.aqnameEqual
 
-  implicit def arrayManifest: ClassManifest[A] = AttributeSetImplHelper.arrM
+  implicit def arrayManifest: ClassTag[A] = AttributeSetImplHelper.arrM
 
   def emptySet: ArraySet[A] = AttributeSet.empty
 

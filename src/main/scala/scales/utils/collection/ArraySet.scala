@@ -1,8 +1,10 @@
 package scales.utils.collection
 
+import scala.Iterable
+import scala.reflect.ClassTag
 import scalaz.Equal
-import scales.utils.Equiv
 import scales.utils.collection.array._
+import scales.utils.Equiv
 
 /**
   * Create ArraySet instances
@@ -22,7 +24,7 @@ trait ArraySetsFactory[A] {
     */
   protected def equal: Equal[A]
 
-  protected implicit def arrayManifest: ClassManifest[A]
+  protected implicit def arrayManifest: ClassTag[A]
 
   def emptySet: ArraySet[A]
 
@@ -43,7 +45,7 @@ object ArraySet {
   /**
     * Default implementation of the ArraySetFactoryFunctions.  Use to create a single instance.
     */
-  def factory[A](implicit equalI: Equal[A], arrayManifestI: ClassManifest[A]): ArraySetsFactory[A] = {
+  def factory[A](implicit equalI: Equal[A], arrayManifestI: ClassTag[A]): ArraySetsFactory[A] = {
 
     trait ASF extends ArraySetsFactory[A] {
       /**
@@ -51,7 +53,7 @@ object ArraySet {
         */
       def equal: Equal[A] = equalI
 
-      implicit def arrayManifest: ClassManifest[A] = arrayManifestI
+      implicit def arrayManifest: ClassTag[A] = arrayManifestI
 
       def emptySet: ArraySet[A] = new EmptyArraySet[A] with ASF
 
@@ -103,17 +105,17 @@ trait ArraySet[A] extends Iterable[A] {
   /**
     * Uses the Equal instance to add extra elements
     */
-  def ++(other: Traversable[A]): ArraySet[A] = other.foldLeft(this)(_ + _)
+  def ++(other: Iterable[A]): ArraySet[A] = other.foldLeft(this)(_ + _)
 
   /**
     * Uses the Equal instance to remove elements
     */
-  def --(other: Traversable[A]): ArraySet[A] = other.foldLeft(this)(_ - _)
+  def --(other: Iterable[A]): ArraySet[A] = other.foldLeft(this)(_ - _)
 
   /**
     * Remove items from this set based on an equivalence relationship between the two types against a third type C.
     */
-  def --[B, C](other: Traversable[B])(implicit equiv: Equiv[C], viewA: A => C, viewB: B => C) = other.foldLeft(this)(_ - _)
+  def --[B, C](other: Iterable[B])(implicit equiv: Equiv[C], viewA: A => C, viewB: B => C) = other.foldLeft(this)(_ - _)
 
   /**
     * With another level of indirection, the caller decides what Equiv to use.
@@ -139,8 +141,6 @@ trait ArraySet[A] extends Iterable[A] {
     * Removes a single element via a defined Equiv relationship between the types
     */
   def -[B, C](b: B)(implicit equiv: Equiv[C], viewA: A => C, viewB: B => C): ArraySet[A]
-
-  def empty: Boolean
 
   def size: Int
 }

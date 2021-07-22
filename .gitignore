@@ -1,0 +1,9 @@
+.bsp/
+.metals/
+shell.nix
+tags
+target/
+.bloop/
+project/.bloop/
+project/metals.sbt
+project/project/

@@ -2,22 +2,15 @@
 name := "scales-xml"
 organization := "org.scalesxml"
 
-publishTo := Some("mmz-repository" at "http://maven.admin.srf.ch")
-
-
-
 // https://mvnrepository.com/artifact/org.scala-lang.modules/scala-xml
 libraryDependencies ++= Seq(
-  SrfPlugin.Deps.Compile.scalazCore,
-  SrfPlugin.Deps.Compile.scalaXml,
-  SrfPlugin.Deps.Test.specs2Core
+  SrfPlugin.Deps.Compile.ScalaZ.core,
+  SrfPlugin.Deps.Compile.Scala.xml,
+  SrfPlugin.Deps.Test.Specs2.core,
 )
 
-
-
-
-scalaVersion in ThisBuild := "2.12.3"
-crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.3")
+ThisBuild / scalaVersion:= "2.13.6"
+ThisBuild / crossScalaVersions := Seq((ThisBuild / scalaVersion).value)
 
 scalacOptions --= Seq(
   // See other posts in the series for other helpful options
@@ -68,5 +61,8 @@ scalacOptions --= Seq(
   "-Ywarn-value-discard"
 )
 
-
+ThisBuild / scalafixDependencies += "org.scala-lang.modules" %% "scala-collection-migrations" % "2.5.0"
+libraryDependencies +=  "org.scala-lang.modules" %% "scala-collection-compat" % "2.5.0"
+addCompilerPlugin(scalafixSemanticdb)
+scalacOptions ++= List("-Yrangepos", "-P:semanticdb:synthetics:on")
 

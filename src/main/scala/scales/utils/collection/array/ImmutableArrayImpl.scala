@@ -1,9 +1,9 @@
 package scales.utils.collection.array
 
-import scales.utils.collection.{ImmutableArrayProxy, ImmutableArrayProxyBuilder}
-
-import scala.collection.generic.CanBuildFrom
+import scala.collection.BuildFrom
 import scala.collection.mutable.Builder
+import scala.reflect.ClassTag
+import scales.utils.collection.{ImmutableArrayProxy, ImmutableArrayProxyBuilder}
 
 object ImmutableArray {
   val emptyImmutableArray = new ImmutableArray[Nothing](Array[AnyRef](), 0, 0)
@@ -53,7 +53,7 @@ final class ImmutableArrayBuilder[A](private[this] var _buf: Array[AnyRef] = Arr
     else
       ImmutableArray(_buf, 0, _len)
 
-  override def ++=(xs: TraversableOnce[A]): this.type = xs match {
+  override def addAll(xs: TraversableOnce[A]): this.type = xs match {
     case ImmutableArray(base, offset, slen) =>
       ensureSize(_len + slen)
       Array.copy(base, offset, _buf, _len, slen)
@@ -63,7 +63,7 @@ final class ImmutableArrayBuilder[A](private[this] var _buf: Array[AnyRef] = Arr
       super.++=(xs)
   }
 
-  def +=(elem: A): this.type = {
+  override def addOne(elem: A): this.type = {
     ensureSize(_len + 1)
     // we know its big enough
     _buf(_len) = elem.asInstanceOf[AnyRef]
@@ -83,8 +83,8 @@ case class IAEmpty[+A]() extends ImmutableArrayProxy[A] {
 
   def ar = this
 
-  @inline override def :+[B >: A, That](elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That =
-    IAOne(elem).asInstanceOf[That]
+  @inline override def prepended[B >: A](elem: B): ImmutableArrayProxy[B] =
+    IAOne(elem)
 
 }
 
@@ -96,11 +96,11 @@ case class IAOne[+A](one: A) extends ImmutableArrayProxy[A] {
 
   def ar = this
 
-  @inline override def :+[B >: A, That](elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That =
-    IATwo(one, elem).asInstanceOf[That]
+  @inline override def prepended[B >: A](elem: B): ImmutableArrayProxy[B] =
+    IATwo(one, elem)
 
-  @inline override def updated[B >: A, That](index: Int, elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That =
-    IAOne(elem).asInstanceOf[That]
+  @inline override def updated[B >: A](index: Int, elem: B): ImmutableArrayProxy[B] =
+    IAOne(elem)
 
 }
 
@@ -117,14 +117,14 @@ case class IATwo[+A](one: A, two: A) extends ImmutableArrayProxy[A] {
 
   def ar = this
 
-  @inline override def :+[B >: A, That](elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That =
-    IAThree(one, two, elem).asInstanceOf[That]
+  @inline override def prepended[B >: A](elem: B): ImmutableArrayProxy[B] =
+    IAThree(one, two, elem)
 
-  @inline override def updated[B >: A, That](index: Int, elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That =
+  @inline override def updated[B >: A](index: Int, elem: B): ImmutableArrayProxy[B] =
     ((index: @switch) match {
       case 0 => IATwo(elem, two)
       case 1 => IATwo(one, elem)
-    }).asInstanceOf[That]
+    })
 
 }
 
@@ -140,12 +140,12 @@ case class IAThree[+A](one: A, two: A, three: A) extends ImmutableArrayProxy[A] 
 
   def ar = this
 
-  @inline override def updated[B >: A, That](index: Int, elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That =
+  @inline override def updated[B >: A](index: Int, elem: B): ImmutableArrayProxy[B] =
     ((index: @switch) match {
       case 0 => IAThree(elem, two, three)
       case 1 => IAThree(one, elem, three)
       case 2 => IAThree(one, two, elem)
-    }).asInstanceOf[That]
+    })
 
 }
 
@@ -168,23 +168,23 @@ trait ImmutableArrayT[+A] extends ImmutableArrayProxy[A] {
 
   def length = len
 
-  @inline override def +:[B >: A, That](elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That =
+  @inline override def appended[B >: A](elem: B): ImmutableArrayProxy[B] =
     (if (len == vectorAfter) super.+:(elem)
     else {
       val ar = Array.ofDim[AnyRef](len + 1)
       Array.copy(base, offset, ar, 1, len)
       ar(0) = elem.asInstanceOf[AnyRef]
       ImmutableArrayAll[B](ar)
-    }).asInstanceOf[That]
+    })
 
-  @inline override def :+[B >: A, That](elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That =
+  @inline override def prepended[B >: A](elem: B): ImmutableArrayProxy[B] =
     (if (len == vectorAfter) super.:+(elem)
     else {
       val ar = Array.ofDim[AnyRef](len + 1)
       Array.copy(base, offset, ar, 0, len)
       ar(len) = elem.asInstanceOf[AnyRef]
       ImmutableArrayAll[B](ar)
-    }).asInstanceOf[That]
+    })
 
   @inline override def take(n: Int) =
     ImmutableArray(base, offset, if (len - n < 0) len else n)
@@ -204,28 +204,8 @@ trait ImmutableArrayT[+A] extends ImmutableArrayProxy[A] {
     ImmutableArray(base, offset, elems)
   }
 
-  /**
-    * Basically optimised version for back, hint used directly, one new array creation
-    */
-  override def updated[B >: A, That](index: Int, elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That =
-    if (bf.isInstanceOf[ImmutableArrayProxy.ImmutableArrayProxyCBF[_]]) {
-      // we know its objects underneath, we know the relationship is sound
-      val ar = Array.ofDim[AnyRef](len)
-      Array.copy(base, offset, ar, 0, len)
-      ar(index) = elem.asInstanceOf[AnyRef]
-      ImmutableArrayAll[B](ar).asInstanceOf[That]
-    } else {
-      val b = bf(repr)
-      val (prefix, rest) = this.splitAt(index)
-      b.sizeHint(len)
-      b ++= toCollection(prefix)
-      b += elem
-      b ++= toCollection(rest.tail)
-      b.result()
-    }
-
-  override def toArray[U >: A : ClassManifest]: Array[U] =
-    if (implicitly[ClassManifest[U]].erasure eq base.getClass.getComponentType) {
+  override def toArray[U >: A : ClassTag]: Array[U] =
+    if (implicitly[ClassTag[U]].erasure eq base.getClass.getComponentType) {
       if ((offset == 0) && (len == base.length))
         base.asInstanceOf[Array[U]]
       else {
@@ -265,9 +245,9 @@ case class VectorImpl[+A](ar: Vector[A]) extends ImmutableArrayProxy[A] {
 
   def length = ar.length
 
-  @inline override def +:[B >: A, That](elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That = VectorImpl(ar.+:(elem)).asInstanceOf[That]
+  @inline override def prepended[B >: A](elem: B): ImmutableArrayProxy[B] = VectorImpl(ar.+:(elem))
 
-  @inline override def :+[B >: A, That](elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That = VectorImpl(ar.:+(elem)).asInstanceOf[That]
+  @inline override def appended[B >: A](elem: B): ImmutableArrayProxy[B] = VectorImpl(ar.:+(elem))
 
   @inline override def take(n: Int) = VectorImpl(ar.take(n))
 
@@ -277,9 +257,9 @@ case class VectorImpl[+A](ar: Vector[A]) extends ImmutableArrayProxy[A] {
 
   @inline override def slice(from: Int, until: Int) = VectorImpl(ar.slice(from, until))
 
-  override def updated[B >: A, That](index: Int, elem: B)(implicit bf: CanBuildFrom[ImmutableArrayProxy[A], B, That]): That = VectorImpl(ar.updated(index, elem)).asInstanceOf[That]
+  override def updated[B >: A](index: Int, elem: B): ImmutableArrayProxy[B] = VectorImpl(ar.updated(index, elem))
 
-  override def toArray[U >: A : ClassManifest]: Array[U] = ar.toArray
+  override def toArray[U >: A : ClassTag]: Array[U] = ar.toArray
 
 }
 

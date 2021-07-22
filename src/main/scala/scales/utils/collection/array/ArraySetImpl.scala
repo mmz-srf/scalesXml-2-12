@@ -1,11 +1,11 @@
 package scales.utils.collection.array
 
-import scales.utils.Equiv
 import scales.utils.collection.{ArraySet, ArraySetsFactory}
+import scales.utils.Equiv
 
 trait EmptyArraySet[A] extends ArraySet[A] with ArraySetsFactory[A] {
 
-  def empty = true
+  override def isEmpty = true
 
   override def size = 0
 
@@ -32,7 +32,7 @@ trait ArraySetOne[A] extends EmptyArraySet[A] {
 
   final override def iterator = ups.iterator
 
-  final override def empty = false
+  final override def isEmpty = false
 
   override def size = minusOps.size
 
@@ -183,7 +183,7 @@ trait ArraySetArray[A] extends ArraySet[A] with ArraySetsFactory[A] {
 
   override def size = ar.length
 
-  def empty = size != 0
+  override def isEmpty = size != 0
 
   // impl lets it grow def size = ar.length
   def contains[B, C](b: B)(implicit equiv: Equiv[C], viewA: A => C, viewB: B => C): Boolean = indexOf(b)(equiv(_, _)) != -1

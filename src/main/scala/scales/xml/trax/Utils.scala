@@ -4,6 +4,7 @@ import javax.xml.namespace.NamespaceContext
 import javax.xml.stream._
 import scales.xml.ScalesXml._
 import scales.xml._
+import scala.collection.JavaConverters._
 
 object EmptyStreamLocation extends Location {
   val getCharacterOffset: Int = -1
@@ -21,7 +22,6 @@ trait TNC extends NamespaceContext {
 
 object EmptyNamespaceContext extends TNC {
 
-  import scala.collection.JavaConversions._
 
   val parent = this
 
@@ -31,7 +31,7 @@ object EmptyNamespaceContext extends TNC {
 
   def getPrefix(namespaceURI: String): String = ""
 
-  def getPrefixes(namespaceURI: String): java.util.Iterator[String] = List().iterator
+  def getPrefixes(namespaceURI: String): java.util.Iterator[String] = List().iterator.asJava
 
 }
 
@@ -42,7 +42,6 @@ object NamespaceContextFunctions {
 
   def newContext(prev: TNC, elem: Elem) = new TNC {
 
-    import scala.collection.JavaConversions._
 
     val parent = prev
 
@@ -61,7 +60,7 @@ object NamespaceContextFunctions {
     def getPrefix(namespaceURI: String): String = nsToPre.get(namespaceURI).map(_.head).getOrElse(prev.getPrefix(namespaceURI))
 
     def getPrefixes(namespaceURI: String): java.util.Iterator[String] =
-      nsToPre.get(namespaceURI).getOrElse(List()).iterator
+      nsToPre.get(namespaceURI).getOrElse(List()).iterator.asJava
   }
 
 }

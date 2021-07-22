@@ -86,9 +86,9 @@ class XPath[PT <: Iterable[XmlPath]](val path: XPathInfo, val cbf: CanBuildFrom[
   def newThis(xpathInfo: XPathInfo): XPath[T] =
     new XPath[T](xpathInfo, cbf)
 
-  def empty: Iterable[XmlPath] = cbf().result
+  def empty: Iterable[XmlPath] = List.empty
 
-  def just(only: XmlPath): Iterable[XmlPath] = (cbf() += only).result
+  def just(only: XmlPath): Iterable[XmlPath] = List(only)
 
   /**
     * Allow working within the XPath, easily extend and test

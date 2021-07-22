@@ -1,10 +1,11 @@
 package scales.xml.xpath
 
-import scales.utils.collection.DuplicateFilter
+import scala.collection.BuildFrom
+import scala.reflect.ClassTag
 import scales.utils._
+import scales.utils.collection.DuplicateFilter
 import scales.xml.{Attribute, Attributes, CData, Elem, ScalesXml, Text, XCC, XmlItem, XmlPath}
 
-import scala.collection.generic.CanBuildFrom
 
 object PositionalEquals {
 
@@ -25,7 +26,7 @@ trait XmlPathImplicits {
 
   /** By default a List, eager/strict evaluation, is used.  The user of the library can simply choose another collection to wrap the xmlPath */
   implicit def fromXmlPathToXPath(xmlPath: XmlPath)(
-    implicit cbf: CanBuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
+    implicit cbf: BuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
     new XPath[List[XmlPath]](
       XPathInfo(one(one(xmlPath)), initialNode = true, eager = true), cbf)
 
@@ -35,7 +36,7 @@ trait XmlPathImplicits {
     val nodes = xpath.path.nodes.flatten
     if (nodes.size < 2) nodes // sorting on one or 0 still costs
     else
-      DuplicateFilter(sort[XmlItem, Elem, XCC](paths = nodes)(ScalesXml.xpathSortingClassManifest))(PositionalEquals.xpathPositionalEqual)
+      DuplicateFilter(sort[XmlItem, Elem, XCC](paths = nodes)(ScalesXml.xpathSortingClassTag))(PositionalEquals.xpathPositionalEqual)
   }
 
   /**
@@ -100,7 +101,7 @@ trait XmlPaths {
     * View called on nested Lists, but not on xlmPath.
     */
   def viewed(xmlPath: XmlPath)(
-    implicit cbf: CanBuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
+    implicit cbf: BuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
     new XPath[List[XmlPath]](
       XPathInfo(one(one(xmlPath).view).view, initialNode = true), cbf)
 
@@ -110,7 +111,7 @@ trait XmlPaths {
     * Same as fromXmlPathToXPath, an eager evaluation of xpath queries
     */
   def eager(xmlPath: XmlPath)(
-    implicit cbf: CanBuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
+    implicit cbf: BuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
     fromXmlPathToXPath(xmlPath)
 
   val isText = (x: XmlPath) => x.isItem == true && (x.item().isInstanceOf[Text] || x.item().isInstanceOf[CData])
