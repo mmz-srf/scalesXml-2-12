@@ -65,7 +65,7 @@ trait LSSerializerFactoryBase extends SerializerFactory {
     s
   }
 
-  def giveBack(serializer: ExactSerializer) {
+  def giveBack(serializer: ExactSerializer): Unit = {
     DefaultDOMFactoryPool.giveBack(serializer.docBuilderF)
   }
 

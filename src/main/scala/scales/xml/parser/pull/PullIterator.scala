@@ -18,7 +18,7 @@ trait XmlPull extends Iterator[PullType] with DocLike {
   protected[xml] val parser: XMLStreamReader
   protected[xml] val resourceCloser: () => Unit
 
-  protected[xml] def internalClose {}
+  protected[xml] def internalClose: Unit = {}
 
   /**
     * Why is this on a pull parser?  Simple answer is by default it costs little,

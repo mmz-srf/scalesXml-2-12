@@ -146,7 +146,7 @@ object PrefixedNamespace {
     }
 
   private[xml] def verifyConstraint(pre: String, ns: Namespace,
-                                    agpre: String, agns: String) {
+                                    agpre: String, agns: String): Unit = {
     if (((ns.uri eq agns) && (pre ne agpre)) ||
       ((pre eq agpre) && (ns.uri ne agns))) {
       error("The namespace '" + agns + "' can only be bound to prefix '" + agpre + "'")

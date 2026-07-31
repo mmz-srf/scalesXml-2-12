@@ -91,7 +91,7 @@ trait XmlTypes {
     * Will match if the QNames are the same =:= and if the attributes are present (not requiring that these are the only attributes).
     * What is returned is either a Seq of attribute values or a simple boolean
     */
-  def ElemMatcher(name: QName, attributes: AttributeQName*) = new {
+  final class ElemMatcherExtractor(name: QName, attributes: Seq[AttributeQName]) {
 
     def matchAttribs(elem: Elem) = for (attribute <- attributes; matches <- elem.attributes(attribute)) yield matches
 
@@ -103,6 +103,8 @@ trait XmlTypes {
         None
     }
   }
+
+  def ElemMatcher(name: QName, attributes: AttributeQName*) = new ElemMatcherExtractor(name, attributes)
 
   /**
     * Adds a subtree to this given path and returns a path focussed on the new subtree.

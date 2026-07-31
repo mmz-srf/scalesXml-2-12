@@ -148,7 +148,7 @@ trait ExactQName {
   /**
     * QNames are compared with prefix
     */
-  implicit def prefixAttributeComparison(implicit qnameTokenComparison: Option[(ComparisonContext, String, String) => Boolean]) = new AttributeComparison()(equal { (a: QName, b: QName) => a.====(b) }, qnameTokenComparison)
+  implicit def prefixAttributeComparison(implicit qnameTokenComparison: Option[(ComparisonContext, String, String) => Boolean]): AttributeComparison = new AttributeComparison()(equal { (a: QName, b: QName) => a.====(b) }, qnameTokenComparison)
 
 }
 

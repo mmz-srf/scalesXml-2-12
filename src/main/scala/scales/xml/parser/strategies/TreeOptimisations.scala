@@ -12,7 +12,7 @@ trait TreeOptimisation[TOKEN <: OptimisationToken] extends PathOptimisationStrat
 
   def newTree(elem: Elem, children: XmlChildren, token: TOKEN): XmlTree
 
-  final override def elementEnd(xml: TreeProxies, token: TOKEN) {
+  final override def elementEnd(xml: TreeProxies, token: TOKEN): Unit = {
 
     val l = xml.current
     val nt = newTree(l.elem, l.builder.result, token)

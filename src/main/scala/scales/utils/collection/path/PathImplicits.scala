@@ -48,6 +48,6 @@ trait PathImplicits {
     * And provides | which allows NoPaths failures, allowing the use site to decide
     * how to combine
     */
-  implicit def fToFoldRToCombine[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](f: PathFoldR[Item, Section, CC]) = new PathFoldCombiner[Item, Section, CC](f)
+  implicit def fToFoldRToCombine[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](f: PathFoldR[Item, Section, CC]): PathFoldCombiner[Item, Section, CC] = new PathFoldCombiner[Item, Section, CC](f)
 
 }

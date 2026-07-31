@@ -9,7 +9,7 @@ import scalaz.Equal
   * @author Derek Williams
   */
 class Equiv[A: Equal] {
-  def apply[B <% A, C <% A](b: B, c: C): Boolean = implicitly[Equal[A]].equal(b: A, c: A)
+  def apply[B, C](b: B, c: C)(implicit evB: B => A, evC: C => A): Boolean = implicitly[Equal[A]].equal(evB(b), evC(c))
 }
 
 trait EquivFunctions {

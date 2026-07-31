@@ -34,7 +34,7 @@ trait ScalesStreamReader extends XMLStreamReader {
 
   lazy val endItr = docLike.end.misc.iterator
 
-  def setEv() {
+  def setEv(): Unit = {
     //    println("called with ev " + ev )
     evType = ev.fold(_ match {
       case _: Elem => START_ELEMENT
@@ -58,7 +58,7 @@ trait ScalesStreamReader extends XMLStreamReader {
     */
   protected var attribs: Array[Attribute] = _
 
-  def close() {}
+  def close(): Unit = {}
 
   def getAttributeCount(): Int = attribs.size
 
@@ -198,7 +198,7 @@ trait ScalesStreamReader extends XMLStreamReader {
 
   def isWhiteSpace(): Boolean = getText.trim.size == 0
 
-  def doPop {
+  def doPop: Unit = {
     if (shouldPop) {
       nc = nc.parent
       shouldPop = false
@@ -206,11 +206,10 @@ trait ScalesStreamReader extends XMLStreamReader {
   }
 
   def next(): Int = {
-    if (!startedDoc) {
-      startedDoc = true
-      return START_DOCUMENT
-    }
-
+    // StAX contract: getEventType() already reports START_DOCUMENT before iteration begins,
+    // so the first next() must return the first *real* event, not START_DOCUMENT again.
+    // Emitting START_DOCUMENT here makes JDK 11+ transformers throw
+    // "java.lang.InternalError: processing prolog event: 7" in StAXStream2SAX.
     if (doEndDoc) {
       doEndDoc = false
       //      println("doc end")
@@ -270,7 +269,7 @@ trait ScalesStreamReader extends XMLStreamReader {
     eventType
   }
 
-  def require(tipe: Int, namespaceURI: String, localName: String) {
+  def require(tipe: Int, namespaceURI: String, localName: String): Unit = {
     if (evType != tipe)
       throw new XMLStreamException("Type does not match", getLocation())
 

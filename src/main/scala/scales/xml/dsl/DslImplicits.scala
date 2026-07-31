@@ -4,16 +4,16 @@ import scales.xml.{<, ?<, Attribute, AttributeQName, Elem, ItemOrElem, Namespace
 
 
 trait DslImplicits {
-  implicit def fromElemToBuilder(elem: Elem) = <(elem)
+  implicit def fromElemToBuilder(elem: Elem): DslBuilder = <(elem)
 
-  implicit def fromQNamePairToAttribute(pair: (PrefixedQName, String)) = Attribute(pair._1, pair._2)
+  implicit def fromQNamePairToAttribute(pair: (PrefixedQName, String)): Attribute = Attribute(pair._1, pair._2)
 
-  implicit def fromDslBuilderToTree(dslB: DslBuilder) = dslB.toTree
+  implicit def fromDslBuilderToTree(dslB: DslBuilder): XmlTree = dslB.toTree
 
   /**
     * Only works for elems, allows simpler definitions
     */
-  implicit def fromQNameToTree(qname: QName) = DslBuilder.q2tree(qname)
+  implicit def fromQNameToTree(qname: QName): XmlTree = DslBuilder.q2tree(qname)
 
   /**
     * Serialisation and other dsl friends benefit from this
@@ -28,16 +28,16 @@ trait DslImplicits {
   /**
     * Only works for elems, better looking than <
     */
-  implicit def fromQNameToBuilder(qname: QName) = <(qname)
+  implicit def fromQNameToBuilder(qname: QName): DslBuilder = <(qname)
 
   /**
     * matches elements and attributes based on qname only
     */
-  implicit def fromQNameToQNamePimper(qname: QName) = new QNameMPimper(qname)
+  implicit def fromQNameToQNamePimper(qname: QName): QNameMPimper = new QNameMPimper(qname)
 
-  implicit def fromTreeToDsl(tree: XmlTree) = DslBuilder(tree)
+  implicit def fromTreeToDsl(tree: XmlTree): DslBuilder = DslBuilder(tree)
 
-  implicit def fromNSToNSMPimper(ns: Namespace) = new NSMPimper(ns)
+  implicit def fromNSToNSMPimper(ns: Namespace): NSMPimper = new NSMPimper(ns)
 }
 
 /**
@@ -56,19 +56,19 @@ final class OptionalAttribute(val name: AttributeQName) {
   */
 trait OptionalDslBuilderImplicits {
 
-  implicit def fromElemToOptionalBuilder(elem: Elem) = ?<(elem)
+  implicit def fromElemToOptionalBuilder(elem: Elem): OptionalDslBuilder = ?<(elem)
 
   /**
     * Only works for elems, better looking than <
     */
-  implicit def fromQNameToOptionalBuilder(qname: QName) = ?<(qname)
+  implicit def fromQNameToOptionalBuilder(qname: QName): OptionalDslBuilder = ?<(qname)
 
-  implicit def fromTreeToODsl(tree: XmlTree) = OptionalDslBuilder(tree)
+  implicit def fromTreeToODsl(tree: XmlTree): OptionalDslBuilder = OptionalDslBuilder(tree)
 
   /**
     * Provides access to the ~> pimps
     */
-  implicit def fromPQNameToOptionalAttribute(name: AttributeQName) =
+  implicit def fromPQNameToOptionalAttribute(name: AttributeQName): OptionalAttribute =
     new OptionalAttribute(name)
 
   /**

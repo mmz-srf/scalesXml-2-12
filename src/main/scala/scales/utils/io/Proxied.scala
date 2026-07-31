@@ -8,7 +8,7 @@ import scales.utils.resources.CloseOnNeed
 case class ProxiedCloseOnNeedReader(orig: java.io.Reader) extends java.io.Reader with CloseOnNeed {
   require(orig != null, "original reader cannot be null")
 
-  override def close() {}
+  override def close(): Unit = {}
 
   //NOOP
   override def mark(rah: Int) = orig.mark(rah)
@@ -29,7 +29,7 @@ case class ProxiedCloseOnNeedReader(orig: java.io.Reader) extends java.io.Reader
 
   override def skip(n: Long) = orig.skip(n)
 
-  def doClose() {
+  def doClose(): Unit = {
     orig.close
   }
 }
@@ -40,7 +40,7 @@ case class ProxiedCloseOnNeedReader(orig: java.io.Reader) extends java.io.Reader
 case class ProxiedCloseOnNeedInputStream(orig: java.io.InputStream) extends java.io.InputStream with CloseOnNeed {
   require(orig != null, "original stream cannot be null")
 
-  override def close() {}
+  override def close(): Unit = {}
 
   //NOOP
   override def available() = orig.available
@@ -59,7 +59,7 @@ case class ProxiedCloseOnNeedInputStream(orig: java.io.InputStream) extends java
 
   override def skip(n: Long) = orig.skip(n)
 
-  def doClose() {
+  def doClose(): Unit = {
     orig.close
   }
 }

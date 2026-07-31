@@ -30,7 +30,7 @@ trait SerializeableXml[T] {
 case class XmlOutput(data: SerializerData,
                      currentMappings: List[Map[String, String]] = List[Map[String, String]](Map[String, String]() + ("" -> "")) // default namespace) ::
                      , path: List[QName] = List())(implicit serializerFI: SerializerFactory) {
-  implicit val serializerF = serializerFI
+  implicit val serializerF: SerializerFactory = serializerFI
 }
 
 /**

@@ -1,9 +1,61 @@
-.bsp/
-.metals/
-shell.nix
-tags
+# Intellij
+.idea/
+*.iml
+*.iws
+.java-version
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Compiled files
+*.class
 target/
-.bloop/
-project/.bloop/
-project/metals.sbt
-project/project/
+bin/
+
+# Log files
+*.log
+.log.
+
+# Temporary and backup files
+*.tmp
+*.bak
+*.bkp
+.~
+
+# Cache
+.cache-main
+.cache-tests
+
+# Vim
+.tags
+tags
+*.swp
+.vimlocal
+
+# VsCode
+.vscode
+
+# Ensime
+.ensime
+.ensime_cache/
+*.swl
+*.swm
+*.swn
+*.swo
+
+# Nix
+*.nix
+*.drv
+
+# metals
+.bloop
+.metals
+metals.sbt
+
+allure-results
+allure-report
+.bsp
+*.lock
+*.temp

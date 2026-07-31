@@ -128,8 +128,8 @@ trait TheyReallyAreIterators {
 
   import scales.xml.{CloseablePull, XmlPull}
 
-  implicit val closeablePullIsAn = (x: CloseablePull) => x: Iterator[PullType]
-  implicit val xmlPullIsAn = (x: XmlPull) => x: Iterator[PullType]
+  implicit val closeablePullIsAn: CloseablePull => Iterator[PullType] = (x: CloseablePull) => x: Iterator[PullType]
+  implicit val xmlPullIsAn: XmlPull => Iterator[PullType] = (x: XmlPull) => x: Iterator[PullType]
 }
 
 /**
@@ -141,7 +141,7 @@ trait StreamComparableImplicits extends TheyReallyAreIterators {
 
   import scales.xml.{CloseablePull, Doc, DocLike, XmlPull, XmlTree}
 
-  implicit val itrPlusDocAsAnIterator = (x: (Iterator[PullType], DocLike)) => x._1: Iterator[PullType]
+  implicit val itrPlusDocAsAnIterator: ((Iterator[PullType], DocLike)) => Iterator[PullType] = (x: (Iterator[PullType], DocLike)) => x._1: Iterator[PullType]
 
   /**
     * Converts directly to a StreamComparable, its not generally a good idea to automagically  mix XmlPath as an Iterable with XmlPath as an Iterator, make it explicit if thats really desired.
@@ -151,13 +151,13 @@ trait StreamComparableImplicits extends TheyReallyAreIterators {
   /**
     * Converts XmlTree and DslBuilder (when used with PullTypeConversionImplicits
     */
-  implicit def fromStreamToStreamComparable[T <% Iterator[PullType]](t: T): StreamComparable[T] =
+  implicit def fromStreamToStreamComparable[T](t: T)(implicit ev: T => Iterator[PullType]): StreamComparable[T] =
     new StreamComparable(t)
 
   /**
     * One off for (Iterator, DocLike)
     */
-  implicit def itrDocLikeToStreamComparable[T <% Iterator[PullType]](t: (T, DocLike)): StreamComparable[T] = new StreamComparable(t._1)
+  implicit def itrDocLikeToStreamComparable[T](t: (T, DocLike))(implicit ev: T => Iterator[PullType]): StreamComparable[T] = new StreamComparable(t._1)
 
   /**
     * Wrapper for Docs

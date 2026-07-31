@@ -125,7 +125,7 @@ trait AbstractPathIterator[Item <: LeftLike[Item, Tree[Item, Section, CC]], Sect
   /**
     * called after nextState.next, allows filtering to prepare for the next event
     */
-  def prepareNext {
+  def prepareNext: Unit = {
   }
 
   def hasNext = nextState.hasNext
@@ -147,7 +147,7 @@ class DirectionIterator[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section
 
   def end = path
 
-  override def prepareNext {
+  override def prepareNext: Unit = {
     // the end element is actually the interesting one for us and we
     // skip the StartElem
 

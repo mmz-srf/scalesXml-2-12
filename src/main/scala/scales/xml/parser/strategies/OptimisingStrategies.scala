@@ -22,7 +22,7 @@ trait OptimisationToken {
   /**
     * resizes the cached attribute array by 50% if needed
     */
-  private[strategies] final def resizeAttrs(size: Int) {
+  private[strategies] final def resizeAttrs(size: Int): Unit = {
     if (size > attrs.length) {
       attrs = Array.ofDim((size * 1.5).toInt)
     }
@@ -111,14 +111,14 @@ trait PathOptimisationStrategy[Token <: OptimisationToken] extends MemoryOptimis
   /**
     * By default calls TreeProxies.elementEnd.  Replacing entire subtrees can be performed here.
     */
-  def elementEnd(xml: TreeProxies, token: Token) {
+  def elementEnd(xml: TreeProxies, token: Token): Unit = {
     xml.elementEnd
   }
 
   /**
     * Start a new "tree", pushing the elem to TreeProxies
     */
-  def beginSubTree(stack: TreeProxies, elem: Elem, token: Token) {
+  def beginSubTree(stack: TreeProxies, elem: Elem, token: Token): Unit = {
     stack.beginSub(elem, XmlBuilder())
   }
 }
