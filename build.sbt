@@ -1,3 +1,4 @@
+enablePlugins(SrfPlugin)
 
 name := "scales-xml"
 organization := "org.scalesxml"
