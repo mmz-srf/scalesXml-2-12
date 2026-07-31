@@ -9,7 +9,7 @@ libraryDependencies ++= Seq(
   SrfPlugin.Deps.Test.Specs2.core,
 )
 
-ThisBuild / scalaVersion:= "2.13.6"
+ThisBuild / scalaVersion:= SrfPlugin.scala2Version
 ThisBuild / crossScalaVersions := Seq((ThisBuild / scalaVersion).value)
 
 scalacOptions --= Seq(
@@ -61,8 +61,6 @@ scalacOptions --= Seq(
   "-Ywarn-value-discard"
 )
 
-ThisBuild / scalafixDependencies += "org.scala-lang.modules" %% "scala-collection-migrations" % "2.5.0"
 libraryDependencies +=  "org.scala-lang.modules" %% "scala-collection-compat" % "2.5.0"
-addCompilerPlugin(scalafixSemanticdb)
-scalacOptions ++= List("-Yrangepos", "-P:semanticdb:synthetics:on")
+scalacOptions ++= List("-Yrangepos")
 
