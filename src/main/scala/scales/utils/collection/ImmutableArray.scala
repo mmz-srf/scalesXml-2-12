@@ -35,7 +35,7 @@ case class ImmutableArrayProxyBuilder[A]() extends Builder[A, ImmutableArrayProx
   // keep it locally
   private[this] var length = 0
 
-  override def sizeHint(size: Int) {
+  override def sizeHint(size: Int): Unit = {
     if (size > vectorAfter) {
       inVector = true
       haveChosen = true
@@ -52,7 +52,7 @@ case class ImmutableArrayProxyBuilder[A]() extends Builder[A, ImmutableArrayProx
   }
 
   // for the case when we were under 32 but are now over
-  @inline final protected def checkVB() {
+  @inline final protected def checkVB(): Unit = {
     if (!inVector) {
       if (length > vectorAfter) {
         moveToVector
@@ -60,7 +60,7 @@ case class ImmutableArrayProxyBuilder[A]() extends Builder[A, ImmutableArrayProx
     }
   }
 
-  protected def moveToVector() {
+  protected def moveToVector(): Unit = {
     // copy over
     val r = arrayBuilder.result
     if (vectorBuilder eq null) {
@@ -139,7 +139,7 @@ case class ImmutableArrayProxyBuilder[A]() extends Builder[A, ImmutableArrayProx
     }
   }
 
-  def clear() {
+  def clear(): Unit = {
     if (inVector) { // a bit more expensive then resetting the len
       vectorBuilder.clear
     }

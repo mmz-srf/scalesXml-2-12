@@ -63,17 +63,23 @@ class CapturedIterator[A](orig: Iterator[A]) extends Iterator[A] {
 }
 
 
+/**
+  * Lazy appender for scalaz6.EphemeralStream (named class replacing an anonymous
+  * structural type so member access resolves statically under Scala 3).
+  */
+final class EphemeralAppender[A](e: EphemeralStream[A]) {
+  def append[A, B >: A](a: EphemeralStream[A], e: => EphemeralStream[B]): EphemeralStream[B] =
+    if (!a.isEmpty) EphemeralStream.cons(a.headOption.get, append(a.tailOption.get, e))
+    else e
+
+  def +:+[B >: A](e1: => EphemeralStream[B]): EphemeralStream[B] = append[A, B](e, e1)
+}
+
 trait IterableUtilsImplicits extends FlatMapImplicits {
 
   /**
     * Lazy appenders for scalaz6.EphemeralStream
     */
-  implicit def ephemeralAppender[A](e: EphemeralStream[A]) = new {
-    def append[A, B >: A](a: EphemeralStream[A], e: => EphemeralStream[B]): EphemeralStream[B] =
-      if (!a.isEmpty) EphemeralStream.cons(a.headOption.get, append(a.tailOption.get, e))
-      else e
-
-    def +:+[B >: A](e1: => EphemeralStream[B]): EphemeralStream[B] = append[A, B](e, e1)
-  }
+  implicit def ephemeralAppender[A](e: EphemeralStream[A]): EphemeralAppender[A] = new EphemeralAppender[A](e)
 
 }

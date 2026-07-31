@@ -7,7 +7,7 @@ import scales.xml._
 final class TreeProxy(private[this] var _elem: Elem, private[this] val _builder: XmlBuilder) {
   @inline def elem = _elem
 
-  @inline def setElem(elem: Elem) {
+  @inline def setElem(elem: Elem): Unit = {
     _elem = elem
   }
 
@@ -112,23 +112,23 @@ class TreeProxies() {
    */
   def current = _current
 
-  def current_=(tp: TreeProxy) {
+  def current_=(tp: TreeProxy): Unit = {
     _current = tp
   }
 
   def depth = _depth
 
-  def depth_=(newDepth: Int) {
+  def depth_=(newDepth: Int): Unit = {
     _depth = newDepth
   }
 
   def proxy(depth: Int) = _proxies(depth)
 
-  def addChild(i: XmlItem) {
+  def addChild(i: XmlItem): Unit = {
     _current.builder.+=(i)
   }
 
-  def elementEnd() {
+  def elementEnd(): Unit = {
     val l = _current
 
     val newTree = Tree(l.elem, l.builder.result)
@@ -144,7 +144,7 @@ class TreeProxies() {
     }
   }
 
-  def beginSub(elem: Elem, builder: => XmlBuilder) {
+  def beginSub(elem: Elem, builder: => XmlBuilder): Unit = {
     _depth += 1
 
     if (_depth == _proxies.length) {

@@ -16,7 +16,7 @@ object SimpleSerializerFactory extends SerializerFactory {
       val data = sdata
     }
 
-  def giveBack(serializer: ExactSerializer) {}
+  def giveBack(serializer: ExactSerializer): Unit = {}
 }
 
 /**
@@ -34,7 +34,7 @@ trait SimpleSerializer extends Serializer {
   def item(item: XmlItem, path: List[QName]): Option[Throwable] =
     SerializerHelpers.item(out, item, path)
 
-  def doElem(qName: QName, attribs: Iterable[Attribute], ns: Map[String, String], declareDefaultNS: Option[String]) {
+  def doElem(qName: QName, attribs: Iterable[Attribute], ns: Map[String, String], declareDefaultNS: Option[String]): Unit = {
 
     out.append("<" + qName.qName)
 

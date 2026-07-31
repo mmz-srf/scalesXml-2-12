@@ -32,7 +32,7 @@ final class ImmutableArrayBuilder[A](private[this] var _buf: Array[AnyRef] = Arr
 
   @inline def len = _len
 
-  protected def ensureSize(size: Int) {
+  protected def ensureSize(size: Int): Unit = {
     import java.lang.Math.round
 
     if ((_buf eq null) || (size > _buf.length))
@@ -43,7 +43,7 @@ final class ImmutableArrayBuilder[A](private[this] var _buf: Array[AnyRef] = Arr
     }
   }
 
-  override def sizeHint(size: Int) {
+  override def sizeHint(size: Int): Unit = {
     ensureSize(size)
   }
 
@@ -71,7 +71,7 @@ final class ImmutableArrayBuilder[A](private[this] var _buf: Array[AnyRef] = Arr
     this
   }
 
-  def clear() {
+  def clear(): Unit = {
     _len = 0
   }
 }

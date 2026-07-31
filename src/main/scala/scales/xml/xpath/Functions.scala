@@ -64,7 +64,7 @@ trait Functions extends NameFunctions with TextFunctions {
   */
 trait NameFunctions {
 
-  private[NameFunctions] implicit def toQNameNF[T](t: T)(implicit name: Names[T]) =
+  private[NameFunctions] implicit def toQNameNF[T](t: T)(implicit name: Names[T]): QName =
     name.flatName(t)
 
   /**
@@ -226,20 +226,20 @@ object DIF {
   */
 trait NamesImplicits {
   // only used to seperate the interfaces, fully implicit gets this as well
-  implicit val dif = DIF.dif
+  implicit val dif: DIF = DIF.dif
 
-  implicit val attribNames = AttributeNames
-  implicit val attributePathNames = AttributePathNames
-  implicit val xpathNames = XmlPathNames
-  implicit val elemNames = ElemNames
-  implicit val xtreeNames = XmlTreeNames
-  implicit val qnameNames = QNameNames
-  implicit val aqnameNames = AQNameNames
-  implicit val dslNames = DslNames
+  implicit val attribNames: AttributeNames.type = AttributeNames
+  implicit val attributePathNames: AttributePathNames.type = AttributePathNames
+  implicit val xpathNames: XmlPathNames.type = XmlPathNames
+  implicit val elemNames: ElemNames.type = ElemNames
+  implicit val xtreeNames: XmlTreeNames.type = XmlTreeNames
+  implicit val qnameNames: QNameNames.type = QNameNames
+  implicit val aqnameNames: AQNameNames.type = AQNameNames
+  implicit val dslNames: DslNames.type = DslNames
 
-  implicit def attribPathsNames[T <: Iterable[XmlPath]] = AttributePathsNames.asInstanceOf[Names[AttributePaths[T]]]
+  implicit def attribPathsNames[T <: Iterable[XmlPath]]: Names[AttributePaths[T]] = AttributePathsNames.asInstanceOf[Names[AttributePaths[T]]]
 
-  implicit def xpathToNames[T <: Iterable[XmlPath]] = XPathNames.asInstanceOf[Names[XPath[T]]]
+  implicit def xpathToNames[T <: Iterable[XmlPath]]: Names[XPath[T]] = XPathNames.asInstanceOf[Names[XPath[T]]]
 }
 
 object AttributeNames extends Names[Attribute] {
@@ -349,17 +349,17 @@ trait TextFunctions {
 }
 
 trait TextImplicits {
-  implicit val xtreeText = XmlTreeText
-  implicit val attribText = AttributeText
-  implicit val attribPathText = AttributePathText
-  implicit val xmlpathText = XmlPathText
-  implicit val itemText = XmlItemText
-  implicit val itemOrElemText = ItemOrElemText
-  implicit val dslText = DslText
+  implicit val xtreeText: XmlTreeText.type = XmlTreeText
+  implicit val attribText: AttributeText.type = AttributeText
+  implicit val attribPathText: AttributePathText.type = AttributePathText
+  implicit val xmlpathText: XmlPathText.type = XmlPathText
+  implicit val itemText: XmlItemText.type = XmlItemText
+  implicit val itemOrElemText: ItemOrElemText.type = ItemOrElemText
+  implicit val dslText: DslText.type = DslText
 
-  implicit def attribPathsText[T <: Iterable[XmlPath]] = AttributePathsText.asInstanceOf[TextValue[AttributePaths[T]]]
+  implicit def attribPathsText[T <: Iterable[XmlPath]]: TextValue[AttributePaths[T]] = AttributePathsText.asInstanceOf[TextValue[AttributePaths[T]]]
 
-  implicit def xpathToTextValue[T <: Iterable[XmlPath]] = XPathText.asInstanceOf[TextValue[XPath[T]]]
+  implicit def xpathToTextValue[T <: Iterable[XmlPath]]: TextValue[XPath[T]] = XPathText.asInstanceOf[TextValue[XPath[T]]]
 }
 
 object XmlTreeText extends TextValue[XmlTree] {

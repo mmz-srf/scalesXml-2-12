@@ -11,13 +11,13 @@ trait XmlTypesImplicits {
 
   implicit def toAttrQNameP(prens: PrefixedQName): AttributeQName = prens
 
-  implicit def toAttr(pair: (String, String))(implicit ver: XmlVersion, fromParser: FromParser) = Attribute(NoNamespaceQName(pair._1)(ver, fromParser), pair._2)
+  implicit def toAttr(pair: (String, String))(implicit ver: XmlVersion, fromParser: FromParser): Attribute = Attribute(NoNamespaceQName(pair._1)(ver, fromParser), pair._2)
 
   // these was a mistake to directly expose
   //  implicit val aqnameEqual = EqualsHelpers.aqnameEqual
   //  implicit val toAQNameF = (a: Attribute) => { a.name }
-  implicit val qnameEqual = EqualsHelpers.qnameEqual
-  implicit val toQNameF = EqualsHelpers.toQNameF
+  implicit val qnameEqual: scalaz.Equal[QName] = EqualsHelpers.qnameEqual
+  implicit val toQNameF: Attribute => QName = EqualsHelpers.toQNameF
   implicit val qnameEquiv: scales.utils.Equiv[QName] = EqualsHelpers.qnameEquiv
 
   /**
@@ -28,7 +28,7 @@ trait XmlTypesImplicits {
   /**
     * Converts AQN -> String into an attribute
     */
-  implicit def aqpairToAttribute(pair: (AttributeQName, String)) = Attribute(pair._1, pair._2)
+  implicit def aqpairToAttribute(pair: (AttributeQName, String)): Attribute = Attribute(pair._1, pair._2)
 
   /**
     * Provided for those who don't care about the rest
@@ -38,12 +38,14 @@ trait XmlTypesImplicits {
   /**
     * Default cbf for xml trees
     */
-  implicit val xmlCBF = implicitly[XmlCBF]
+  implicit val xmlCBF: XmlCBF = implicitly[XmlCBF]
 
   /**
     * Implicit manifest for sorting positions, big silent cpu eater otherwise, just like the builders.
     */
-  implicit val xpathSortingClassTag = implicitly[ClassTag[(Position[XmlItem, Elem, XCC], XmlPath)]]
+  // NB: must NOT be `implicitly[ClassTag[...]]` — under Scala 3 that resolves to this very
+  // implicit val (self-reference) and yields null; construct the ClassTag directly instead.
+  implicit val xpathSortingClassTag: ClassTag[(Position[XmlItem, Elem, XCC], XmlPath)] = ClassTag(classOf[(Position[XmlItem, Elem, XCC], XmlPath)])
 
   /**
     * Defaults to NotFromParser

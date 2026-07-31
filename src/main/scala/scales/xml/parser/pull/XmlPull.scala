@@ -135,11 +135,11 @@ trait XmlPulls {
 
       def isClosed = closed
 
-      override def internalClose {
+      override def internalClose: Unit = {
         close
       }
 
-      def close {
+      def close: Unit = {
         if (!closed) {
           parser.close
           resourceCloser() // parser close doesn't close the resource
@@ -172,8 +172,8 @@ trait XmlPulls {
 
   type PullType = Either[XmlEvent, EndElem]
 
-  implicit def toLeft(ev: XmlEvent) = Left(ev)
+  implicit def toLeft(ev: XmlEvent): Left[XmlEvent, Nothing] = Left(ev)
 
-  implicit def toRight(ev: EndElem) = Right(ev)
+  implicit def toRight(ev: EndElem): Right[Nothing, EndElem] = Right(ev)
 
 }

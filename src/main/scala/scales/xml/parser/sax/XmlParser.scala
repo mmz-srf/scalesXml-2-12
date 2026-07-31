@@ -10,14 +10,14 @@ import scales.xml.impl._
 import scales.xml.parser.strategies._
 
 trait XmlParserImplicits {
-  implicit def streamToSource(source: InputStream) = new org.xml.sax.InputSource(source)
+  implicit def streamToSource(source: InputStream): org.xml.sax.InputSource = new org.xml.sax.InputSource(source)
 
-  implicit def readerToSource(source: Reader) = new org.xml.sax.InputSource(source)
+  implicit def readerToSource(source: Reader): org.xml.sax.InputSource = new org.xml.sax.InputSource(source)
 
   /**
     * will call openStream.
     */
-  implicit def urlToSource(url: java.net.URL) = new org.xml.sax.InputSource(url.openStream)
+  implicit def urlToSource(url: java.net.URL): org.xml.sax.InputSource = new org.xml.sax.InputSource(url.openStream)
 }
 
 /**

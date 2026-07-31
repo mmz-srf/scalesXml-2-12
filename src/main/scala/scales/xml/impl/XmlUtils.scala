@@ -96,5 +96,5 @@ trait XmlUtilsImplicits {
     def asScales[Token <: OptimisationToken](parsers: Loaner[XMLReader] with SaxSupport = DefaultXMLReaderFactoryPool, optimisationStrategy: PathOptimisationStrategy[Token] = defaultPathOptimisation, encoding: String = "UTF-8") = convertFromScalaXml(elem, parsers, optimisationStrategy, encoding)
   }
 
-  implicit def toScalesXml(elem: scala.xml.Elem)(implicit xmlVer: XmlVersion) = new ToScales(elem)
+  implicit def toScalesXml(elem: scala.xml.Elem)(implicit xmlVer: XmlVersion): ToScales = new ToScales(elem)
 }
