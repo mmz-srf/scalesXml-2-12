@@ -5,7 +5,7 @@ import java.nio.charset.Charset
 
 import scales.xml.{DocLike, QName, XmlVersion}
 
-import scala.collection.immutable.{Map, Stack}
+import scala.collection.immutable.{Map}
 
 /**
   * Type class for choosing a serializing algo
@@ -28,10 +28,9 @@ trait SerializeableXml[T] {
   * This class represents state during a serialization
   */
 case class XmlOutput(data: SerializerData,
-                     currentMappings: Stack[Map[String, String]] = Stack[Map[String, String]]().push(
-                       Map[String, String]() + ("" -> "") // default namespace
-                     ), path: List[QName] = List())(implicit serializerFI: SerializerFactory) {
-  implicit val serializerF = serializerFI
+                     currentMappings: List[Map[String, String]] = List[Map[String, String]](Map[String, String]() + ("" -> "")) // default namespace) ::
+                     , path: List[QName] = List())(implicit serializerFI: SerializerFactory) {
+  implicit val serializerF: SerializerFactory = serializerFI
 }
 
 /**

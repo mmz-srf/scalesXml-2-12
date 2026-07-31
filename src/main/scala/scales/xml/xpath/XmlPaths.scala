@@ -1,10 +1,11 @@
 package scales.xml.xpath
 
-import scales.utils.collection.DuplicateFilter
+import scala.collection.BuildFrom
+import scala.reflect.ClassTag
 import scales.utils._
+import scales.utils.collection.DuplicateFilter
 import scales.xml.{Attribute, Attributes, CData, Elem, ScalesXml, Text, XCC, XmlItem, XmlPath}
 
-import scala.collection.generic.CanBuildFrom
 
 object PositionalEquals {
 
@@ -13,7 +14,7 @@ object PositionalEquals {
     *
     * Don't force a re-evaluation each time
     */
-  implicit val xpathPositionalEqual =
+  implicit val xpathPositionalEqual: scalaz.Equal[XmlPath] =
     toPositionalEqual[XmlItem, Elem, XCC]
 }
 
@@ -25,7 +26,7 @@ trait XmlPathImplicits {
 
   /** By default a List, eager/strict evaluation, is used.  The user of the library can simply choose another collection to wrap the xmlPath */
   implicit def fromXmlPathToXPath(xmlPath: XmlPath)(
-    implicit cbf: CanBuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
+    implicit cbf: BuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
     new XPath[List[XmlPath]](
       XPathInfo(one(one(xmlPath)), initialNode = true, eager = true), cbf)
 
@@ -35,7 +36,7 @@ trait XmlPathImplicits {
     val nodes = xpath.path.nodes.flatten
     if (nodes.size < 2) nodes // sorting on one or 0 still costs
     else
-      DuplicateFilter(sort[XmlItem, Elem, XCC](paths = nodes)(ScalesXml.xpathSortingClassManifest))(PositionalEquals.xpathPositionalEqual)
+      DuplicateFilter(sort[XmlItem, Elem, XCC](paths = nodes)(ScalesXml.xpathSortingClassTag))(PositionalEquals.xpathPositionalEqual)
   }
 
   /**
@@ -46,25 +47,25 @@ trait XmlPathImplicits {
     else
       sortT[XmlItem, Elem, XCC, AttributePath](attrs.attributes.map { x => (x, x.parent) }).map { x => x._1 }
 
-  implicit def fromPathToComparisoms(path: XmlPath) = XmlPathComparisoms(path)
+  implicit def fromPathToComparisoms(path: XmlPath): XmlPathComparisoms = XmlPathComparisoms(path)
 
-  implicit def fromAPathToAComparisoms(path: AttributePath) = AttributePathComparisoms(path)
+  implicit def fromAPathToAComparisoms(path: AttributePath): AttributePathComparisoms = AttributePathComparisoms(path)
 
   /**
     * Mimic the logic of xpath boolean() through typeclass, see AsBoolean / XmlDSL
     */
 
-  implicit val XPathToBoolean = (x: XPath[_]) => !x.path.nodes.isEmpty
+  implicit val XPathToBoolean: XPath[?] => Boolean = (x: XPath[_]) => !x.path.nodes.isEmpty
 
-  implicit val AttributePathsToBoolean = (x: AttributePaths[_]) => !x.attributes.isEmpty
+  implicit val AttributePathsToBoolean: AttributePaths[?] => Boolean = (x: AttributePaths[_]) => !x.attributes.isEmpty
 
-  implicit val IterableToBoolean = (x: Iterable[_]) => !x.isEmpty
+  implicit val IterableToBoolean: Iterable[?] => Boolean = (x: Iterable[_]) => !x.isEmpty
 
-  implicit val StringToBoolean = (x: String) => x.length > 0
+  implicit val StringToBoolean: String => Boolean = (x: String) => x.length > 0
 
-  implicit val NumberToBoolean = (x: Number) => x.longValue() > 0
+  implicit val NumberToBoolean: Number => Boolean = (x: Number) => x.longValue() > 0
 
-  implicit val BooleanToBoolean = (x: Boolean) => x
+  implicit val BooleanToBoolean: Boolean => Boolean = (x: Boolean) => x
 
 }
 
@@ -100,7 +101,7 @@ trait XmlPaths {
     * View called on nested Lists, but not on xlmPath.
     */
   def viewed(xmlPath: XmlPath)(
-    implicit cbf: CanBuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
+    implicit cbf: BuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
     new XPath[List[XmlPath]](
       XPathInfo(one(one(xmlPath).view).view, initialNode = true), cbf)
 
@@ -110,7 +111,7 @@ trait XmlPaths {
     * Same as fromXmlPathToXPath, an eager evaluation of xpath queries
     */
   def eager(xmlPath: XmlPath)(
-    implicit cbf: CanBuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
+    implicit cbf: BuildFrom[List[XmlPath], XmlPath, List[XmlPath]]): XPath[List[XmlPath]] =
     fromXmlPathToXPath(xmlPath)
 
   val isText = (x: XmlPath) => x.isItem == true && (x.item().isInstanceOf[Text] || x.item().isInstanceOf[CData])

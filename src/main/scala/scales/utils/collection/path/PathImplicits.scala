@@ -3,7 +3,7 @@ package scales.utils.collection.path
 import scales.utils.collection.Tree
 import scales.utils.{FoldR, LeftLike, PathFoldR}
 
-import scala.collection.IndexedSeqLike
+import scala.collection.IndexedSeqOps
 
 
 /**
@@ -13,7 +13,7 @@ import scala.collection.IndexedSeqLike
   * And provides | which allows NoPaths failures, allowing the use site to decide
   * how to combine
   */
-class PathFoldCombiner[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](f: PathFoldR[Item, Section, CC]) {
+class PathFoldCombiner[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](f: PathFoldR[Item, Section, CC]) {
 
   private[this] def onSuccess(next: PathFoldR[Item, Section, CC], orOnFail: (Path[Item, Section, CC], FoldError) => FoldR[Item, Section, CC] = (a, b) => Right(b)): PathFoldR[Item, Section, CC] =
     (path: Path[Item, Section, CC]) =>
@@ -48,6 +48,6 @@ trait PathImplicits {
     * And provides | which allows NoPaths failures, allowing the use site to decide
     * how to combine
     */
-  implicit def fToFoldRToCombine[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](f: PathFoldR[Item, Section, CC]) = new PathFoldCombiner[Item, Section, CC](f)
+  implicit def fToFoldRToCombine[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](f: PathFoldR[Item, Section, CC]): PathFoldCombiner[Item, Section, CC] = new PathFoldCombiner[Item, Section, CC](f)
 
 }

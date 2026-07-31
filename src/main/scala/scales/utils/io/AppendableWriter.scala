@@ -5,11 +5,11 @@ package scales.utils.io
   * we need to wrap appendables.
   */
 case class AppendableWriter(out: Appendable) extends java.io.Writer {
-  def close() {}
+  def close(): Unit = {}
 
-  def flush() {}
+  def flush(): Unit = {}
 
-  def write(cbuf: Array[Char], off: Int, len: Int) {
+  def write(cbuf: Array[Char], off: Int, len: Int): Unit = {
     var i = 0
     while (i < len) {
       out.append(cbuf(off + i))

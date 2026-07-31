@@ -3,6 +3,7 @@ package scales.xml.serializers
 import java.nio.charset.Charset
 
 import scales.xml._
+import scala.Iterable
 
 object SimpleSerializerFactory extends SerializerFactory {
   type ExactSerializer = SimpleSerializer
@@ -15,7 +16,7 @@ object SimpleSerializerFactory extends SerializerFactory {
       val data = sdata
     }
 
-  def giveBack(serializer: ExactSerializer) {}
+  def giveBack(serializer: ExactSerializer): Unit = {}
 }
 
 /**
@@ -33,7 +34,7 @@ trait SimpleSerializer extends Serializer {
   def item(item: XmlItem, path: List[QName]): Option[Throwable] =
     SerializerHelpers.item(out, item, path)
 
-  def doElem(qName: QName, attribs: Traversable[Attribute], ns: Map[String, String], declareDefaultNS: Option[String]) {
+  def doElem(qName: QName, attribs: Iterable[Attribute], ns: Map[String, String], declareDefaultNS: Option[String]): Unit = {
 
     out.append("<" + qName.qName)
 
@@ -52,13 +53,13 @@ trait SimpleSerializer extends Serializer {
     }
   }
 
-  def emptyElement(qName: QName, attributes: Traversable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] = {
+  def emptyElement(qName: QName, attributes: Iterable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] = {
     doElem(qName, attributes, namespaces, declareDefaultNS)
     out.append("/>")
     None
   }
 
-  def startElement(qName: QName, attributes: Traversable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] = {
+  def startElement(qName: QName, attributes: Iterable[Attribute], namespaces: Map[String, String], declareDefaultNS: Option[String], path: List[QName]): Option[Throwable] = {
     doElem(qName, attributes, namespaces, declareDefaultNS)
     out.append(">")
     None

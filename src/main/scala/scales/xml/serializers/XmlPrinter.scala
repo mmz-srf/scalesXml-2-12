@@ -11,7 +11,7 @@ import scala.collection.immutable.Map
 
 trait XmlPrinterImplicits {
 
-  implicit def fromSerializeableToWriteTo[T: SerializeableXml](it: T) =
+  implicit def fromSerializeableToWriteTo[T: SerializeableXml](it: T): WriteTo[T] =
     new WriteTo[T](it)
 
 
@@ -24,7 +24,7 @@ trait XmlPrinterImplicits {
     def withWriter(out: Writer): SerializerData = scales.xml.withWriter(decl, out)
   }
 
-  implicit def toWithWriter(decl: Declaration) = DeclarationConverter(decl)
+  implicit def toWithWriter(decl: Declaration): DeclarationConverter = DeclarationConverter(decl)
 
 }
 

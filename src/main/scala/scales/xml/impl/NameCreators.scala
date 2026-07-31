@@ -53,9 +53,9 @@ object NameCreators {
 
 trait QNameImplicits {
 
-  implicit def stringToNoNamespace(localOnly: String)(implicit ver: XmlVersion, fromParser: FromParser) = NoNamespaceQName(localOnly)
+  implicit def stringToNoNamespace(localOnly: String)(implicit ver: XmlVersion, fromParser: FromParser): NoNamespaceQName = NoNamespaceQName(localOnly)
 
-  implicit def localStringToNSBuilder(local: String)(implicit ver: XmlVersion, fromParser: FromParser) = new StringToNSBuilder(local)
+  implicit def localStringToNSBuilder(local: String)(implicit ver: XmlVersion, fromParser: FromParser): StringToNSBuilder = new StringToNSBuilder(local)
 }
 
 /**

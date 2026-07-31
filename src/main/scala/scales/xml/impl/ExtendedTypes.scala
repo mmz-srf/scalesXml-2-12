@@ -13,5 +13,5 @@ case class DocumentRoot(xmlPath: XmlPath)
 case class DocsUp[WHAT](what: WHAT, docroot: DocumentRoot)
 
 object ExtraTypesImplicits {
-  implicit val toAttrN = (nons: AttributeQName) => Attribute(nons, "")
+  implicit val toAttrN: AttributeQName => Attribute = (nons: AttributeQName) => Attribute(nons, "")
 }

@@ -24,7 +24,7 @@ class JoinTextAndCData(var it: Iterator[PullType], val keepCData: Boolean = fals
     i
   }
 
-  def pumpNext {
+  def pumpNext: Unit = {
     if (nextIsNonText) {
       nextIsNonText = false
       // set gotNext to true as we have it anyway
@@ -37,7 +37,7 @@ class JoinTextAndCData(var it: Iterator[PullType], val keepCData: Boolean = fals
     gotNext = false
     var inText = false
 
-    def addText(str: String) {
+    def addText(str: String): Unit = {
       if (!inText) {
         inText = true
         sb = new java.lang.StringBuilder()

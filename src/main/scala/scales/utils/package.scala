@@ -20,11 +20,11 @@ package object utils extends collection.IterableUtils
 
   import collection.Tree
 
-  import scala.collection.IndexedSeqLike
+  import scala.collection.IndexedSeqOps
 
-  @inline final def item[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](item: Item): ItemOrTree[Item, Section, CC] = item
+  @inline final def item[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](item: Item): ItemOrTree[Item, Section, CC] = item
 
-  @inline final def subtree[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[A] <: IndexedSeqLike[A, CC[A]]](section: Section, children: CC[ItemOrTree[Item, Section, CC]])(implicit cbf: TreeCBF[Item, Section, CC]): ItemOrTree[Item, Section, CC] = Tree[Item, Section, CC](section, children)
+  @inline final def subtree[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[A] <: IndexedSeqOps[A, CC, CC[A]]](section: Section, children: CC[ItemOrTree[Item, Section, CC]]): ItemOrTree[Item, Section, CC] = Tree[Item, Section, CC](section, children)
 
   @inline final def one[T](i: T): List[T] =
     i :: Nil

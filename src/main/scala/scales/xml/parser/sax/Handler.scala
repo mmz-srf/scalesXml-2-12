@@ -38,30 +38,30 @@ class Handler[Token <: OptimisationToken](strategy: PathOptimisationStrategy[Tok
   // used for judging PI or Comments
   private[this] var inprolog = true
 
-  def checkit(what: String) {
+  def checkit(what: String): Unit = {
   }
 
-  override def startDTD(name: String, publicId: String, systemId: String) {
+  override def startDTD(name: String, publicId: String, systemId: String): Unit = {
     prolog = prolog.copy(dtd = Some(DTD(name, publicId, systemId)))
   }
 
-  override def processingInstruction(target: String, data: String) {
+  override def processingInstruction(target: String, data: String): Unit = {
     val pi = PI(target, data)
     addMisc(Right(pi))
   }
 
-  override def startPrefixMapping(prefix: String, uri: String) {
+  override def startPrefixMapping(prefix: String, uri: String): Unit = {
     nsDeclarations += (prefix -> uri)
   }
 
-  override def setDocumentLocator(loc: Locator) {
+  override def setDocumentLocator(loc: Locator): Unit = {
     locator = loc
   }
 
   override def startElement(uri: String,
                             localName: String,
                             qName: String,
-                            attributes: org.xml.sax.Attributes) {
+                            attributes: org.xml.sax.Attributes): Unit = {
 
     if (inprolog) {
       if (locator.isInstanceOf[Locator2]) {
@@ -108,7 +108,7 @@ class Handler[Token <: OptimisationToken](strategy: PathOptimisationStrategy[Tok
 
   override def endElement(uri: String,
                           localName: String,
-                          qName: String) {
+                          qName: String): Unit = {
 
     // pop it and we are now with the correct parent
     // let the strategy decide what actually happens
@@ -121,7 +121,7 @@ class Handler[Token <: OptimisationToken](strategy: PathOptimisationStrategy[Tok
     addMisc(Left(Comment(text)))
   }
 
-  def addMisc(miscItem: Misc) {
+  def addMisc(miscItem: Misc): Unit = {
     if (inprolog)
       prolog = prolog.copy(misc = prolog.misc :+ miscItem)
     else {
@@ -143,11 +143,11 @@ class Handler[Token <: OptimisationToken](strategy: PathOptimisationStrategy[Tok
     buf.addChild(child)
   }
 
-  override def startCDATA() {
+  override def startCDATA(): Unit = {
     isCData = true;
   }
 
-  override def endCDATA() {
+  override def endCDATA(): Unit = {
     isCData = false;
   }
 

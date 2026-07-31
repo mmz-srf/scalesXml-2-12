@@ -1,17 +1,15 @@
 package scales.utils.collection.path
 
-import scales.utils.collection.Tree
-import scales.utils._
-
-import scala.collection.IndexedSeqLike
-import scala.collection.generic.CanBuildFrom
-import scala.collection.immutable.Stack
+import scala.collection.BuildFrom
+import scala.collection.IndexedSeqOps
 import scala.sys.error
+import scales.utils._
+import scales.utils.collection.Tree
 
 /**
   * Represents the Top for a given Path, there isn't a tree above this
   */
-case class Top[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]]() extends LeftLike[Top[Item, Section, CC], Path[Item, Section, CC]]
+case class Top[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]]() extends LeftLike[Top[Item, Section, CC], Path[Item, Section, CC]]
 
 /**
   * Positions only have meaning for a given Path(s).
@@ -21,12 +19,12 @@ case class Top[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <
   * @author Chris
   *
   */
-trait Position[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]] {
+trait Position[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]] {
   private[utils] val root: Path[Item, Section, CC]
-  private[utils] val position: Stack[Int]
+  private[utils] val position: List[Int]
 }
 
-private[utils] case class PositionImpl[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](val position: Stack[Int], val root: Path[Item, Section, CC]) extends Position[Item, Section, CC]
+private[utils] case class PositionImpl[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](val position: List[Int], val root: Path[Item, Section, CC]) extends Position[Item, Section, CC]
 
 /**
   * Position in a parent Paths children
@@ -35,10 +33,10 @@ private[utils] case class PositionImpl[Item <: LeftLike[Item, Tree[Item, Section
   *
   */
 // note - lazy is a perf killer for building, probably doesn't save much over interrogation either (given Iterator is used)
-case class Node[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](index: Int, focus: ItemOrTree[Item, Section, CC])
+case class Node[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](index: Int, focus: ItemOrTree[Item, Section, CC])
 
-case class Path[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](top: EitherLike[Top[Item, Section, CC], Path[Item, Section, CC]], node: Node[Item, Section, CC])
-                                                                                                            (implicit cbf: CanBuildFrom[CC[_], ItemOrTree[Item, Section, CC], CC[ItemOrTree[Item, Section, CC]]]) extends Iterable[Path[Item, Section, CC]] with RightLike[Top[Item, Section, CC], Path[Item, Section, CC]] {
+case class Path[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](top: EitherLike[Top[Item, Section, CC], Path[Item, Section, CC]], node: Node[Item, Section, CC])
+                                                                                                 (implicit cbf: BuildFrom[CC[_], ItemOrTree[Item, Section, CC], CC[ItemOrTree[Item, Section, CC]]]) extends Iterable[Path[Item, Section, CC]] with RightLike[Top[Item, Section, CC], Path[Item, Section, CC]] {
   self =>
 
   // for some reason its not liking the types, probably  good one
@@ -197,7 +195,7 @@ case class Path[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] 
 
         if (c.size == 1) {
           // optimising for pull parse onqnames, if its only one in the parent, set the parent to empty, sucks if its not traversable
-          subtree(tree.section, c.asInstanceOf[scala.collection.Traversable[ItemOrTree[Item, Section, CC]]].companion.empty.asInstanceOf[CC[ItemOrTree[Item, Section, CC]]])
+          subtree(tree.section, c.asInstanceOf[scala.collection.Iterable[ItemOrTree[Item, Section, CC]]].iterableFactory.empty.asInstanceOf[CC[ItemOrTree[Item, Section, CC]]])
         } else {
           val parts = parentTree.children.splitAt(node.index)
           subtree(tree.section, parts._1 ++ parts._2.tail)
@@ -216,15 +214,15 @@ case class Path[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] 
     */
   def position(): Position[Item, Section, CC] = {
     @scala.annotation.tailrec
-    def makePosition(path: Path[Item, Section, CC], stack: Stack[Int]): (Stack[Int], Path[Item, Section, CC]) = {
-      val newStack = stack.push(path.node.index)
+    def makePosition(path: Path[Item, Section, CC], stack: List[Int]): (List[Int], Path[Item, Section, CC]) = {
+      val newStack = path.node.index :: stack
       if (path.top.isLeft)
         (newStack, path)
       else
         makePosition(path.top.right.get, newStack)
     }
 
-    val res = makePosition(this, Stack[Int]())
+    val res = makePosition(this, List[Int]())
     new PositionImpl[Item, Section, CC](res._1, res._2)
   }
 

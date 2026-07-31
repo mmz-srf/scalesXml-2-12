@@ -10,8 +10,8 @@ import scales.xml.{DocLike, Elem, EndElem, Miscs, PullType, QName, XmlItem}
   *
   * This trait boxes a given conversion, stopping accidental serialize calls on the resulting streams.
   */
-class StreamComparable[T <% Iterator[PullType]](val t: T) {
-  def underlyingIterator: Iterator[PullType] = t
+class StreamComparable[T](val t: T)(implicit ev: T => Iterator[PullType]) {
+  def underlyingIterator: Iterator[PullType] = ev(t)
 }
 
 /**
@@ -69,9 +69,9 @@ class StreamComparison(filter: Iterator[PullType] => Iterator[PullType] = identi
 /**
   * Wraps a given T with a conversion from T to an xml stream
   */
-class StreamComparisonWrapper[T <% StreamComparable[T]](val str: StreamComparison) extends XmlComparison[T] {
+class StreamComparisonWrapper[T](val str: StreamComparison)(implicit ev: T => StreamComparable[T]) extends XmlComparison[T] {
   def compare(calculate: Boolean, context: ComparisonContext, lt: T, rt: T): Option[(XmlDifference[_], ComparisonContext)] =
-    str.compare(calculate, context, lt, rt)
+    str.compare(calculate, context, ev(lt), ev(rt))
 }
 
 trait StreamEquals {
@@ -139,7 +139,7 @@ class DocLikeWrapperBase[T, B](tToDoc: T => DocLike, tToBody: T => B, bodyComp: 
   */
 class DocLikeComparison[T, B](implicit ic: XmlComparison[XmlItem], docWrapper: DocLikeWrapper[T]) extends XmlComparison[T] {
 
-  implicit val tToDoc = docWrapper.tToDoc
+  implicit val tToDoc: T => DocLike = docWrapper.tToDoc
 
   def compare(calculate: Boolean, context: ComparisonContext, left: T, right: T): Option[(XmlDifference[_], ComparisonContext)] = {
     // should we split out XmlComparison[Misc]?, its only used by DocLike right now..

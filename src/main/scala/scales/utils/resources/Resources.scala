@@ -89,7 +89,7 @@ trait SimpleUnboundedPool[T] extends Pool[T] with Loaner[T] with Creator[T] {
     else doCreate
   }
 
-  def giveBack(t: T) {
+  def giveBack(t: T): Unit = {
     if (size.get > reduceSize) size.decrementAndGet
     else cache.add(t)
   }

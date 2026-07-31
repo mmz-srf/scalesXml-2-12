@@ -1,9 +1,9 @@
 package scales.utils.collection.path
 
+import scala.collection.IndexedSeqOps
+import scala.reflect.ClassTag
 import scales.utils._
 import scales.utils.collection._
-
-import scala.collection.IndexedSeqLike
 
 object PathFold {
 
@@ -18,7 +18,7 @@ object PathFold {
     *
     * The progress through the document is in reverse document order.  This ensures that transformations can always be safely composed, e.g. a delete of a path won't stop changes below it.  This, however, implies the developer must also handle any accumalation in "reverse".
     */
-  def foldPositions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]], ACC](locations: Iterable[Path[Item, Section, CC]], accumulator: ACC)(folder: (ACC, Path[Item, Section, CC]) => (ACC, FoldOperation[Item, Section, CC]))(implicit cbf: TreeCBF[Item, Section, CC], cm: ClassManifest[(Position[Item, Section, CC], Path[Item, Section, CC])]): Either[(ACC, Path[Item, Section, CC]), FoldError] = {
+  def foldPositions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]], ACC](locations: Iterable[Path[Item, Section, CC]], accumulator: ACC)(folder: (ACC, Path[Item, Section, CC]) => (ACC, FoldOperation[Item, Section, CC]))(implicit cbf: TreeCBF[Item, Section, CC], cm: ClassTag[(Position[Item, Section, CC], Path[Item, Section, CC])]): Either[(ACC, Path[Item, Section, CC]), FoldError] = {
     if (locations.isEmpty) return Right(NoPaths)
 
     val sorted = sortPositions(locations, false)
@@ -65,14 +65,14 @@ object PathFold {
   * Utility functions for Paths, sorting, moving between Paths, getting to the root etc.
   */
 trait Paths {
-  def noPath[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]]
+  def noPath[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]]
   (implicit cbf: TreeCBF[Item, Section, CC]) = new Path[Item, Section, CC](Top(), Node(-1, null.asInstanceOf[ItemOrTree[Item, Section, CC]])) {
   }
 
   /**
     * Returns the root path for its input, uses zipUp to ensure changes are kept
     */
-  def rootPath[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](path: Path[Item, Section, CC]): Path[Item, Section, CC] = {
+  def rootPath[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](path: Path[Item, Section, CC]): Path[Item, Section, CC] = {
     var newPath = path
     while (!newPath.top.isLeft)
       newPath = newPath.zipUp
@@ -82,27 +82,27 @@ trait Paths {
   /**
     * Navigates the path until the new position is reached, throws if either its a new root or the position is not reachable
     */
-  def moveTo[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](path: Path[Item, Section, CC], newPos: Position[Item, Section, CC])
+  def moveTo[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](path: Path[Item, Section, CC], newPos: Position[Item, Section, CC])
                                                                                                          (implicit cbf: TreeCBF[Item, Section, CC]): Path[Item, Section, CC] = {
 
     val root = rootPath(path)
     // cheaty way, crap but quick enough
     // TODO come back to this and properly move,
-    newPos.position.pop.foldLeft(root) { (path, pos) =>
+    newPos.position.tail.foldLeft(root) { (path, pos) =>
       Path(path, Node(pos, path.children(pos)))
     }
   }
 
-  type FoldR[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]] = Either[Path[Item, Section, CC], FoldError]
+  type FoldR[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]] = Either[Path[Item, Section, CC], FoldError]
 
-  type PathFoldR[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]] = (Path[Item, Section, CC]) => FoldR[Item, Section, CC]
+  type PathFoldR[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]] = (Path[Item, Section, CC]) => FoldR[Item, Section, CC]
 
   /**
     * As per the non accumalating version, folds over positions within a given tree but allows for an additional accumalation.
     *
     * The progress through the document is in reverse document order.  This ensures that transformations can always be safely composed, e.g. a delete of a path won't stop changes below it.  This, however, implies the developer must also handle any accumulation in "reverse".
     */
-  def foldPositions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]], ACC](locations: Iterable[Path[Item, Section, CC]], accumulator: ACC)(folder: (ACC, Path[Item, Section, CC]) => (ACC, FoldOperation[Item, Section, CC]))(implicit cbf: TreeCBF[Item, Section, CC], cm: ClassManifest[(Position[Item, Section, CC], Path[Item, Section, CC])]): Either[(ACC, Path[Item, Section, CC]), FoldError] = PathFold.foldPositions(locations, accumulator)(folder)(cbf, cm)
+  def foldPositions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]], ACC](locations: Iterable[Path[Item, Section, CC]], accumulator: ACC)(folder: (ACC, Path[Item, Section, CC]) => (ACC, FoldOperation[Item, Section, CC]))(implicit cbf: TreeCBF[Item, Section, CC], cm: ClassTag[(Position[Item, Section, CC], Path[Item, Section, CC])]): Either[(ACC, Path[Item, Section, CC]), FoldError] = PathFold.foldPositions(locations, accumulator)(folder)(cbf, cm)
 
   /**
     * Folds over positions within a single path, for example all given children.  As such positions must be calculated.
@@ -113,7 +113,7 @@ trait Paths {
     *
     * Each iteration folds the resulting tree back into the path. As this function must maintain the Path it does not expose the new path root until the result.
     */
-  def foldPositions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](locations: Iterable[Path[Item, Section, CC]])(folder: (Path[Item, Section, CC]) => FoldOperation[Item, Section, CC])(implicit cbf: TreeCBF[Item, Section, CC], cm: ClassManifest[(Position[Item, Section, CC], Path[Item, Section, CC])]): FoldR[Item, Section, CC] =
+  def foldPositions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](locations: Iterable[Path[Item, Section, CC]])(folder: (Path[Item, Section, CC]) => FoldOperation[Item, Section, CC])(implicit cbf: TreeCBF[Item, Section, CC], cm: ClassTag[(Position[Item, Section, CC], Path[Item, Section, CC])]): FoldR[Item, Section, CC] =
     foldPositions[Item, Section, CC, Unit](locations, ())((u, p) => ((), folder(p))).
       fold(x => Left(x._2), Right(_))
 
@@ -127,7 +127,7 @@ trait Paths {
     * @param path2
     * @return 1 if path1 is before path2, -1 if path2 is before path1, 0 if they are the same and NotSameRoot+-1 if they are not in the same root
     */
-  def comparePathPositions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](path1: Position[Item, Section, CC], path2: Position[Item, Section, CC]): Int = {
+  def comparePathPositions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](path1: Position[Item, Section, CC], path2: Position[Item, Section, CC]): Int = {
 
     if (path1 eq path2) 0
     else {
@@ -143,7 +143,7 @@ trait Paths {
   /**
     * Helper for comparePaths, will not evaluate position if the paths are equal
     */
-  def comparePathsDirect[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](path1: Path[Item, Section, CC], path2: Path[Item, Section, CC]): Boolean =
+  def comparePathsDirect[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](path1: Path[Item, Section, CC], path2: Path[Item, Section, CC]): Boolean =
     if (path1 eq path2)
       true
     else
@@ -158,10 +158,10 @@ trait Paths {
     * @param path2
     * @return 1 if path1 is before path2, -1 if path2 is before path1, 0 if they are the same and NotSameRoot+-1 if they are not in the same root
     */
-  def comparePaths[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](path1: Path[Item, Section, CC], path2: Path[Item, Section, CC]): (Int, Position[Item, Section, CC], Position[Item, Section, CC]) =
+  def comparePaths[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](path1: Path[Item, Section, CC], path2: Path[Item, Section, CC]): (Int, Position[Item, Section, CC], Position[Item, Section, CC]) =
     comparePathsP((path1.position, path1), (path2.position, path2))
 
-  def comparePathsP[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](path1: (Position[Item, Section, CC], Path[Item, Section, CC]), path2: (Position[Item, Section, CC], Path[Item, Section, CC])): (Int, Position[Item, Section, CC], Position[Item, Section, CC]) = {
+  def comparePathsP[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](path1: (Position[Item, Section, CC], Path[Item, Section, CC]), path2: (Position[Item, Section, CC], Path[Item, Section, CC])): (Int, Position[Item, Section, CC], Position[Item, Section, CC]) = {
     if (path1._2 eq path2._2) {
       val pos = path1._1
       (0, pos, pos)
@@ -171,7 +171,7 @@ trait Paths {
     }
   }
 
-  def comparePathsT[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]], T](path1: (Position[Item, Section, CC], (T, Path[Item, Section, CC])), path2: (Position[Item, Section, CC], (T, Path[Item, Section, CC]))): (Int, Position[Item, Section, CC], Position[Item, Section, CC]) = {
+  def comparePathsT[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]], T](path1: (Position[Item, Section, CC], (T, Path[Item, Section, CC])), path2: (Position[Item, Section, CC], (T, Path[Item, Section, CC]))): (Int, Position[Item, Section, CC], Position[Item, Section, CC]) = {
     if (path1._2._2 eq path2._2._2) {
       val pos = path1._1
       (0, pos, pos)
@@ -191,32 +191,32 @@ trait Paths {
   /**
     * Provides an instance of the Equal type class for positional Equality
     */
-  def toPositionalEqual[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]]: Equal[Path[Item, Section, CC]] =
+  def toPositionalEqual[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]]: Equal[Path[Item, Section, CC]] =
     equal {
       comparePathsDirect(_, _)
     }
 
-  def top[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](tree: Tree[Item, Section, CC])
+  def top[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](tree: Tree[Item, Section, CC])
                                                                                                       (implicit cbf: TreeCBF[Item, Section, CC]): Path[Item, Section, CC] =
     Path(Top(), Node(0, tree))
 
   /**
     * positions with tuples (T, Path)
     */
-  def positionsT[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]], T](paths: Iterable[(T, Path[Item, Section, CC])]): Iterable[(Position[Item, Section, CC], (T, Path[Item, Section, CC]))] =
+  def positionsT[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]], T](paths: Iterable[(T, Path[Item, Section, CC])]): Iterable[(Position[Item, Section, CC], (T, Path[Item, Section, CC]))] =
     paths.map(x => (x._2.position, x))
 
   /**
     * Obtain the positions for the paths
     */
-  def positions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](paths: Iterable[Path[Item, Section, CC]]): Iterable[(Position[Item, Section, CC], Path[Item, Section, CC])] =
+  def positions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](paths: Iterable[Path[Item, Section, CC]]): Iterable[(Position[Item, Section, CC], Path[Item, Section, CC])] =
     paths.map(x => (x.position, x))
 
   /**
     * sortPositions with a  tuple T, Path
     */
-  def sortPositionsT[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]], T](paths: Iterable[(T, Path[Item, Section, CC])],
-                                                                                                                     isDescending: Boolean = true)(implicit cm: ClassManifest[(Position[Item, Section, CC], (T, Path[Item, Section, CC]))]): Iterable[(Position[Item, Section, CC], (T, Path[Item, Section, CC]))] =
+  def sortPositionsT[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]], T](paths: Iterable[(T, Path[Item, Section, CC])],
+                                                                                                                     isDescending: Boolean = true)(implicit cm: ClassTag[(Position[Item, Section, CC], (T, Path[Item, Section, CC]))]): Iterable[(Position[Item, Section, CC], (T, Path[Item, Section, CC]))] =
   // Have to force them anyway
     scala.util.Sorting.stableSort(positionsT(paths).toSeq, (p1: (Position[Item, Section, CC], (T, Path[Item, Section, CC])), p2: (Position[Item, Section, CC], (T, Path[Item, Section, CC]))) => {
       val (res, pos1, pos2) = comparePathsT(p1, p2)
@@ -227,9 +227,9 @@ trait Paths {
   /**
     * Sorts according to position of each path item, descending or descending based on a depth first then rightwise order.
     */
-  def sortPositions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](paths: Iterable[Path[Item, Section, CC]],
+  def sortPositions[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](paths: Iterable[Path[Item, Section, CC]],
 
-                                                                                                                 isDescending: Boolean = true)(implicit cm: ClassManifest[(Position[Item, Section, CC], Path[Item, Section, CC])]): Iterable[(Position[Item, Section, CC], Path[Item, Section, CC])] =
+                                                                                                                 isDescending: Boolean = true)(implicit cm: ClassTag[(Position[Item, Section, CC], Path[Item, Section, CC])]): Iterable[(Position[Item, Section, CC], Path[Item, Section, CC])] =
 
   // Have to force them anyway
     scala.util.Sorting.stableSort(positions(paths).toSeq, (p1: (Position[Item, Section, CC], Path[Item, Section, CC]), p2: (Position[Item, Section, CC], Path[Item, Section, CC])) => {
@@ -242,19 +242,19 @@ trait Paths {
   /**
     * Sorts according to position of each path item, descending or descending based on a depth first then rightwise order.
     */
-  def sort[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](paths: Iterable[Path[Item, Section, CC]],
-                                                                                                        isDescending: Boolean = true)(implicit cm: ClassManifest[(Position[Item, Section, CC], Path[Item, Section, CC])]): Iterable[Path[Item, Section, CC]] = sortPositions(paths, isDescending).map(x => x._2)
+  def sort[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](paths: Iterable[Path[Item, Section, CC]],
+                                                                                                        isDescending: Boolean = true)(implicit cm: ClassTag[(Position[Item, Section, CC], Path[Item, Section, CC])]): Iterable[Path[Item, Section, CC]] = sortPositions(paths, isDescending).map(x => x._2)
 
   /**
     * sort with a tuple T, Path
     */
-  def sortT[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]], T](paths: Iterable[(T, Path[Item, Section, CC])],
-                                                                                                            isDescending: Boolean = true)(implicit cm: ClassManifest[(Position[Item, Section, CC], (T, Path[Item, Section, CC]))]): Iterable[(T, Path[Item, Section, CC])] = sortPositionsT(paths, isDescending).map(x => x._2)
+  def sortT[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]], T](paths: Iterable[(T, Path[Item, Section, CC])],
+                                                                                                            isDescending: Boolean = true)(implicit cm: ClassTag[(Position[Item, Section, CC], (T, Path[Item, Section, CC]))]): Iterable[(T, Path[Item, Section, CC])] = sortPositionsT(paths, isDescending).map(x => x._2)
 
   /**
     * Deepest last child
     */
-  def deepestLast[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](path: Path[Item, Section, CC]): Path[Item, Section, CC] = {
+  def deepestLast[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](path: Path[Item, Section, CC]): Path[Item, Section, CC] = {
     if (path.hasChildren) {
       val npath = path.lastChild.get
       if (npath.isItem)
@@ -268,7 +268,7 @@ trait Paths {
   /**
     * gets the next preceding:: sibling equivalent in document order, unlike XPath preceding:: it does not exclude parents
     */
-  def preceding[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](path: Path[Item, Section, CC]): Option[Path[Item, Section, CC]] =
+  def preceding[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](path: Path[Item, Section, CC]): Option[Path[Item, Section, CC]] =
     if (path.hasPreviousSibling) {
       val t = path.previousSibling
       Some(
@@ -284,7 +284,7 @@ trait Paths {
   /**
     * gets the next following:: sibling in document order
     */
-  def following[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqLike[X, CC[X]]](path: Path[Item, Section, CC]): Option[Path[Item, Section, CC]] =
+  def following[Item <: LeftLike[Item, Tree[Item, Section, CC]], Section, CC[X] <: IndexedSeqOps[X, CC, CC[X]]](path: Path[Item, Section, CC]): Option[Path[Item, Section, CC]] =
     if (path.hasNextSibling)
       Some(path.nextSibling)
     else if (path.top.isLeft)
